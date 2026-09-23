@@ -1,0 +1,2273 @@
+<!DOCTYPE html>
+<!-- saved from url=(0050)file:///D:/Downloads/Tablero_Contratos_SIM_v4.html -->
+<html lang="es"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tablero de Contratos · SIM Cúcuta</title>
+<style>
+  :root{
+    --navy-950:#0c1f2c;
+    --navy-900:#122c3c;
+    --navy-800:#1a3d51;
+    --navy-700:#254f68;
+    --paper:#f4f2ec;
+    --paper-card:#ffffff;
+    --ink:#152029;
+    --ink-soft:#4a5a63;
+    --line:#dcd8cd;
+    --amber:#c9821a;
+    --amber-soft:#f3d9ad;
+    --teal:#1f6f6f;
+    --green:#2f7d5a;
+    --green-bg:#e4f0e8;
+    --red:#a8402f;
+    --red-bg:#f6e4df;
+    --blue:#2f5f8a;
+    --blue-bg:#e3ecf4;
+    --grey:#6c7580;
+    --grey-bg:#eceae2;
+    --radius:10px;
+    --shadow:0 1px 2px rgba(12,31,44,0.06), 0 4px 14px rgba(12,31,44,0.05);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:-apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  .mono{ font-family:'Consolas','SFMono-Regular','Menlo','Courier New',monospace; }
+
+  /* ---------- Layout shell ---------- */
+  .shell{
+    display:flex;
+    min-height:100vh;
+  }
+  .sidebar{
+    width:280px;
+    flex-shrink:0;
+    background:linear-gradient(180deg, var(--navy-950), var(--navy-900) 60%, var(--navy-800));
+    color:#dfe9ee;
+    position:sticky;
+    top:0;
+    height:100vh;
+    overflow-y:auto;
+    padding:22px 20px 24px;
+    display:flex;
+    flex-direction:column;
+    gap:22px;
+  }
+  .sidebar::-webkit-scrollbar{width:8px;}
+  .sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15); border-radius:6px;}
+
+  .brand{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    padding-bottom:16px;
+    border-bottom:1px solid rgba(255,255,255,0.12);
+  }
+  .brand .tag{
+    font-family:'Consolas','SFMono-Regular','Menlo','Courier New',monospace;
+    font-size:11px;
+    letter-spacing:0.06em;
+    color:var(--amber-soft);
+  }
+  .brand h1{
+    font-size:19px;
+    line-height:1.25;
+    margin:2px 0 0;
+    font-weight:700;
+    color:#fff;
+  }
+  .brand .sub{
+    font-size:12.5px;
+    color:#9fb3bd;
+    margin-top:4px;
+  }
+
+  .side-block{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .side-block h2{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:#7f97a3;
+    margin:0 0 2px;
+    font-weight:600;
+  }
+  .search-box{
+    position:relative;
+  }
+  .search-box input{
+    width:100%;
+    background:rgba(255,255,255,0.07);
+    border:1px solid rgba(255,255,255,0.15);
+    border-radius:8px;
+    padding:9px 12px 9px 32px;
+    color:#fff;
+    font-size:13.5px;
+    font-family:inherit;
+  }
+  .search-box input::placeholder{color:#8fa5b0;}
+  .search-box svg{
+    position:absolute; left:10px; top:50%; transform:translateY(-50%);
+    width:14px; height:14px; opacity:0.6;
+  }
+
+  select.filter-select{
+    width:100%;
+    background:rgba(255,255,255,0.07);
+    border:1px solid rgba(255,255,255,0.15);
+    border-radius:8px;
+    padding:8px 10px;
+    color:#eaf1f4;
+    font-size:13px;
+    font-family:inherit;
+    appearance:none;
+    -webkit-appearance:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%237f97a3'><path d='M5.5 7.5l4.5 4.5 4.5-4.5' stroke='%237f97a3' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat:no-repeat;
+    background-position:right 10px center;
+    cursor:pointer;
+  }
+  select.filter-select option{ color:#111; }
+
+  /* Multi-select dropdown (Año) */
+  .ms-wrap{ position:relative; }
+  .ms-btn{
+    width:100%;
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+    background:rgba(255,255,255,0.07);
+    border:1px solid rgba(255,255,255,0.15);
+    border-radius:8px;
+    padding:8px 10px;
+    color:#eaf1f4;
+    font-size:13px;
+    font-family:inherit;
+    cursor:pointer;
+    text-align:left;
+  }
+  .ms-btn:hover{ background:rgba(255,255,255,0.1); }
+  .ms-btn.active{ border-color:var(--amber); }
+  .ms-chevron{ width:14px; height:14px; flex-shrink:0; opacity:0.7; transition:transform 0.15s ease; }
+  .ms-btn.active .ms-chevron{ transform:rotate(180deg); }
+  .ms-panel{
+    display:none;
+    position:absolute;
+    top:calc(100% + 6px);
+    left:0; right:0;
+    background:#16303f;
+    border:1px solid rgba(255,255,255,0.18);
+    border-radius:10px;
+    box-shadow:0 12px 28px rgba(0,0,0,0.35);
+    z-index:20;
+    padding:8px;
+  }
+  .ms-panel.open{ display:block; }
+  .ms-panel-actions{
+    display:flex; gap:6px;
+    padding:2px 2px 8px;
+    border-bottom:1px solid rgba(255,255,255,0.1);
+    margin-bottom:6px;
+  }
+  .ms-mini-btn{
+    background:none;
+    border:1px solid rgba(255,255,255,0.2);
+    color:#cfe0e7;
+    border-radius:6px;
+    font-size:11px;
+    padding:4px 9px;
+    cursor:pointer;
+    font-family:inherit;
+  }
+  .ms-mini-btn:hover{ background:rgba(255,255,255,0.08); }
+  .ms-options{ display:flex; flex-direction:column; gap:2px; max-height:200px; overflow-y:auto; }
+  .ms-option{
+    display:flex; align-items:center; gap:8px;
+    padding:6px 6px;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:13px;
+    color:#eaf1f4;
+  }
+  .ms-option:hover{ background:rgba(255,255,255,0.07); }
+  .ms-option input[type="checkbox"]{
+    width:14px; height:14px;
+    accent-color:var(--amber);
+    cursor:pointer;
+    flex-shrink:0;
+  }
+
+  .reset-btn{
+    margin-top:2px;
+    background:transparent;
+    border:1px solid rgba(255,255,255,0.22);
+    color:#cfe0e7;
+    border-radius:8px;
+    padding:8px 10px;
+    font-size:12.5px;
+    cursor:pointer;
+    font-family:inherit;
+    transition:background 0.15s ease;
+  }
+  .reset-btn:hover{ background:rgba(255,255,255,0.08); }
+
+  .side-footer{
+    margin-top:auto;
+    padding-top:16px;
+    border-top:1px solid rgba(255,255,255,0.12);
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .about-link{
+    background:none; border:none; color:#9fb3bd; font-size:12.5px;
+    text-align:left; cursor:pointer; padding:4px 0; font-family:inherit;
+    text-decoration:underline; text-underline-offset:2px;
+  }
+  .about-link:hover{ color:#fff; }
+  .side-footer .credit{
+    font-size:11px;
+    color:#5f7883;
+  }
+
+  /* ---------- Main ---------- */
+  .main{
+    flex:1;
+    min-width:0;
+    padding:26px 32px 60px;
+  }
+  .topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    flex-wrap:wrap;
+    gap:12px;
+    margin-bottom:20px;
+  }
+  .topbar h2{
+    font-size:22px;
+    margin:0 0 4px;
+    font-weight:700;
+  }
+  .topbar .desc{
+    font-size:13px;
+    color:var(--ink-soft);
+    max-width:640px;
+  }
+  .filter-summary{
+    font-family:'Consolas','SFMono-Regular','Menlo','Courier New',monospace;
+    font-size:11.5px;
+    background:var(--paper-card);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:7px 12px;
+    color:var(--ink-soft);
+    white-space:nowrap;
+  }
+
+  /* KPI cards */
+  .kpi-grid{
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    gap:12px;
+    margin-bottom:22px;
+  }
+  .kpi-card{
+    background:var(--paper-card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:14px 16px;
+    box-shadow:var(--shadow);
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    position:relative;
+    overflow:hidden;
+  }
+  .kpi-card .bar{
+    position:absolute; left:0; top:0; bottom:0; width:4px;
+  }
+  .kpi-card .label{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    color:var(--ink-soft);
+    font-weight:600;
+  }
+  .kpi-card .value{
+    font-family:'Consolas','SFMono-Regular','Menlo','Courier New',monospace;
+    font-size:21px;
+    font-weight:600;
+    line-height:1.1;
+    color:var(--ink);
+  }
+  .kpi-card .value.small{ font-size:17px; }
+  .kpi-card .foot{
+    font-size:11px;
+    color:var(--ink-soft);
+  }
+
+  /* Charts row */
+  .charts-grid{
+    display:grid;
+    grid-template-columns:1.1fr 1.3fr 1.3fr;
+    gap:14px;
+    margin-bottom:24px;
+  }
+  .chart-card{
+    background:var(--paper-card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:14px 16px 8px;
+    display:flex;
+    flex-direction:column;
+  }
+  .chart-card h3{
+    font-size:12.5px;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    color:var(--ink-soft);
+    margin:0 0 8px;
+    font-weight:600;
+  }
+  .chart-wrap{
+    position:relative;
+    height:190px;
+  }
+  .chart-empty{
+    display:flex; align-items:center; justify-content:center; height:100%;
+    font-size:12px; color:var(--ink-soft); text-align:center; padding:0 10px;
+  }
+
+  /* Donut chart */
+  .donut-wrap{ display:flex; align-items:center; gap:14px; height:100%; }
+  .donut-svg{ width:130px; height:130px; flex-shrink:0; }
+  .donut-center-num{ font-family:'Consolas','SFMono-Regular','Menlo','Courier New',monospace; font-size:22px; font-weight:700; fill:var(--ink); }
+  .donut-center-label{ font-size:8.5px; fill:var(--ink-soft); text-transform:uppercase; letter-spacing:0.04em; }
+  .chart-legend{ display:flex; flex-direction:column; gap:7px; min-width:0; }
+  .legend-item{ display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--ink); }
+  .legend-dot{ width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+  .legend-label{ flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .legend-val{ font-family:'Consolas','SFMono-Regular','Menlo','Courier New',monospace; color:var(--ink-soft); font-weight:600; }
+
+  /* Horizontal bar chart */
+  .hbar-wrap{ display:flex; flex-direction:column; justify-content:center; gap:12px; height:100%; padding:4px 0; }
+  .hbar-row{ display:flex; align-items:center; gap:8px; }
+  .hbar-label{ width:88px; flex-shrink:0; font-size:11.5px; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .hbar-track{ flex:1; height:14px; background:#eee9dd; border-radius:4px; overflow:hidden; }
+  .hbar-fill{ height:100%; border-radius:4px; transition:width 0.25s ease; }
+  .hbar-val{ width:64px; flex-shrink:0; text-align:right; font-family:'Consolas','SFMono-Regular','Menlo','Courier New',monospace; font-size:11px; color:var(--ink-soft); }
+
+  /* Vertical bar chart */
+  .vbar-wrap{ display:flex; align-items:flex-end; justify-content:space-around; gap:8px; height:100%; padding:6px 4px 0; }
+  .vbar-col{ display:flex; flex-direction:column; align-items:center; gap:4px; flex:1; height:100%; justify-content:flex-end; }
+  .vbar-track{ width:100%; max-width:34px; height:120px; display:flex; align-items:flex-end; }
+  .vbar-fill{ width:100%; background:linear-gradient(180deg, var(--teal), var(--navy-800)); border-radius:4px 4px 0 0; min-height:3px; transition:height 0.25s ease; }
+  .vbar-count{ font-family:'Consolas','SFMono-Regular','Menlo','Courier New',monospace; font-size:11px; font-weight:600; color:var(--ink); }
+  .vbar-label{ font-size:11px; color:var(--ink-soft); }
+
+  /* Table */
+  .table-card{
+    background:var(--paper-card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+  .table-card-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:14px 16px 10px;
+    border-bottom:1px solid var(--line);
+  }
+  .table-card-head h3{
+    font-size:13.5px;
+    margin:0;
+    font-weight:700;
+  }
+  .table-card-head .count{
+    font-family:'Consolas','SFMono-Regular','Menlo','Courier New',monospace;
+    font-size:11.5px;
+    color:var(--ink-soft);
+  }
+  .table-scroll{
+    overflow-x:auto;
+  }
+  table.data-table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:12.8px;
+    min-width:1040px;
+  }
+  table.data-table thead th{
+    position:sticky; top:0;
+    background:#eeece4;
+    text-align:left;
+    padding:9px 12px;
+    font-weight:600;
+    color:var(--ink-soft);
+    border-bottom:1px solid var(--line);
+    cursor:pointer;
+    white-space:nowrap;
+    user-select:none;
+  }
+  table.data-table thead th:hover{ color:var(--ink); }
+  table.data-table thead th .arrow{
+    font-size:10px; opacity:0.5; margin-left:3px;
+  }
+  table.data-table thead th.sorted .arrow{ opacity:1; color:var(--amber); }
+  table.data-table tbody tr{
+    border-bottom:1px solid #eee9dd;
+    cursor:pointer;
+    transition:background 0.1s ease;
+  }
+  table.data-table tbody tr:hover{ background:#f7f4ea; }
+  table.data-table tbody td{
+    padding:9px 12px;
+    vertical-align:top;
+    color:var(--ink);
+  }
+  table.data-table tbody td.num{
+    font-family:'Consolas','SFMono-Regular','Menlo','Courier New',monospace;
+    text-align:right;
+    white-space:nowrap;
+  }
+  .name-cell{ max-width:270px; }
+  .name-cell .main-txt{ font-weight:600; display:block; }
+  .name-cell .sub-txt{ font-size:11px; color:var(--ink-soft); display:block; margin-top:2px; }
+
+  .badge{
+    display:inline-block;
+    font-size:11px;
+    font-weight:600;
+    padding:3px 8px;
+    border-radius:20px;
+    white-space:nowrap;
+  }
+  .badge-liquidado{ background:var(--blue-bg); color:var(--blue); }
+  .badge-terminado{ background:var(--grey-bg); color:var(--grey); }
+  .badge-recibido{ background:var(--amber-soft); color:#7a5310; }
+  .badge-ejecucion{ background:var(--green-bg); color:var(--green); }
+  .badge-otro{ background:var(--grey-bg); color:var(--grey); }
+
+  .progress-mini{
+    width:70px;
+    height:6px;
+    background:#e8e5da;
+    border-radius:4px;
+    overflow:hidden;
+    display:inline-block;
+    vertical-align:middle;
+    margin-right:6px;
+  }
+  .progress-mini > div{ height:100%; background:var(--teal); }
+
+  .empty-row td{
+    text-align:center;
+    padding:40px 12px;
+    color:var(--ink-soft);
+    font-size:13px;
+  }
+
+  /* Modal */
+  .modal-overlay{
+    position:fixed; inset:0;
+    background:rgba(12,20,26,0.55);
+    display:none;
+    align-items:flex-start;
+    justify-content:center;
+    padding:40px 20px;
+    z-index:100;
+    overflow-y:auto;
+  }
+  .modal-overlay.open{ display:flex; }
+  .modal-box{
+    background:#fff;
+    border-radius:12px;
+    max-width:720px;
+    width:100%;
+    box-shadow:0 20px 60px rgba(0,0,0,0.3);
+    animation:modalIn 0.16s ease-out;
+  }
+  @keyframes modalIn{
+    from{ opacity:0; transform:translateY(8px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+  .modal-head{
+    display:flex; justify-content:space-between; align-items:flex-start;
+    padding:20px 22px 14px;
+    border-bottom:1px solid var(--line);
+  }
+  .modal-head .no{
+    font-family:'Consolas','SFMono-Regular','Menlo','Courier New',monospace;
+    font-size:12px; color:var(--ink-soft);
+  }
+  .modal-head h3{
+    margin:4px 0 0; font-size:17px; font-weight:700; line-height:1.35;
+  }
+  .modal-close{
+    background:none; border:none; font-size:20px; cursor:pointer; color:var(--ink-soft);
+    line-height:1; padding:2px 6px;
+  }
+  .modal-close:hover{ color:var(--ink); }
+  .modal-body{ padding:18px 22px 22px; }
+  .modal-body .objeto{
+    font-size:13px; color:var(--ink); line-height:1.55;
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:12px 14px;
+    margin-bottom:16px;
+  }
+  .detail-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px 18px;
+  }
+  .detail-item{
+    font-size:12.5px;
+    border-bottom:1px dashed #eae6da;
+    padding-bottom:8px;
+  }
+  .detail-item .k{
+    color:var(--ink-soft);
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    display:block;
+    margin-bottom:2px;
+  }
+  .detail-item .v{ font-weight:600; }
+  .detail-item .v.mono{ font-family:'Consolas','SFMono-Regular','Menlo','Courier New',monospace; font-weight:500; }
+
+  /* About modal content */
+  .about-body p{ font-size:13px; line-height:1.6; color:var(--ink); }
+  .about-body h4{ font-size:12.5px; margin:16px 0 6px; text-transform:uppercase; letter-spacing:0.04em; color:var(--ink-soft); }
+  .about-body ul{ margin:0; padding-left:18px; font-size:13px; line-height:1.6; }
+
+  footer.page-footer{
+    margin-top:26px;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    text-align:center;
+  }
+
+  @media (max-width: 1200px){
+    .kpi-grid{ grid-template-columns:repeat(3,1fr); }
+    .charts-grid{ grid-template-columns:1fr 1fr; }
+  }
+  @media (max-width: 900px){
+    .shell{ flex-direction:column; }
+    .sidebar{ width:100%; height:auto; position:relative; }
+    .kpi-grid{ grid-template-columns:repeat(2,1fr); }
+    .charts-grid{ grid-template-columns:1fr; }
+    .detail-grid{ grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="tag">SIM · GESTIÓN TÉCNICA DE PROYECTOS</span>
+      <h1>Tablero de Contratos</h1>
+      <div class="sub">Alcaldía de San José de Cúcuta</div>
+    </div>
+
+    <div class="side-block">
+      <h2>Buscar</h2>
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" id="searchInput" placeholder="No. contrato, contratista, objeto...">
+      </div>
+    </div>
+
+    <div class="side-block">
+      <h2>Año</h2>
+      <div class="ms-wrap" id="anoMultiselect">
+        <button type="button" class="ms-btn" id="anoBtn">
+          <span id="anoBtnLabel">Todos los años</span>
+          <svg class="ms-chevron" viewBox="0 0 20 20" fill="none"><path d="M5.5 7.5l4.5 4.5 4.5-4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        </button>
+        <div class="ms-panel" id="anoPanel">
+          <div class="ms-panel-actions">
+            <button type="button" class="ms-mini-btn" id="anoSelectAll">Todos</button>
+            <button type="button" class="ms-mini-btn" id="anoClear">Ninguno</button>
+          </div>
+          <div class="ms-options" id="anoOptions">
+    <label class="ms-option">
+      <input type="checkbox" value="2025">
+      <span>2025</span>
+    </label>
+  
+    <label class="ms-option">
+      <input type="checkbox" value="2024">
+      <span>2024</span>
+    </label>
+  
+    <label class="ms-option">
+      <input type="checkbox" value="2023">
+      <span>2023</span>
+    </label>
+  
+    <label class="ms-option">
+      <input type="checkbox" value="2022">
+      <span>2022</span>
+    </label>
+  
+    <label class="ms-option">
+      <input type="checkbox" value="2021">
+      <span>2021</span>
+    </label>
+  
+    <label class="ms-option">
+      <input type="checkbox" value="2020">
+      <span>2020</span>
+    </label>
+  </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-block">
+      <h2>Estado</h2>
+      <select class="filter-select" id="filterEstado"><option value="">Todos los estados</option><option value="En ejecución">En ejecución</option><option value="Liquidado">Liquidado</option><option value="Recibido">Recibido</option><option value="Terminado">Terminado</option></select>
+    </div>
+
+    <div class="side-block">
+      <h2>Entidad</h2>
+      <select class="filter-select" id="filterEntidad"><option value="">Todas las entidades</option><option value="ALCALDIA MSJC">ALCALDIA MSJC</option><option value="AMC">AMC</option><option value="Corpocero">Corpocero</option><option value="Corponor">Corponor</option><option value="E-DESARROLLO">E-DESARROLLO</option><option value="EIS">EIS</option><option value="EIS - MinVivienda">EIS - MinVivienda</option><option value="FOMCOLOMBIA">FOMCOLOMBIA</option><option value="GOBERNACION - INVIAS">GOBERNACION - INVIAS</option></select>
+    </div>
+
+    <div class="side-block">
+      <h2>Tipo (Tpg)</h2>
+      <select class="filter-select" id="filterTpg"><option value="">Todos los tipos</option><option value="Cons.">Cons.</option><option value="Conv.">Conv.</option><option value="Dect.">Dect.</option><option value="Intv.">Intv.</option><option value="Obra">Obra</option><option value="Suministro">Suministro</option></select>
+    </div>
+
+    <div class="side-block">
+      <h2>Programa</h2>
+      <select class="filter-select" id="filterPrograma"><option value="">Todos los programas</option><option value="APSB">APSB</option><option value="Areas Estrategicas">Areas Estrategicas</option><option value="Equipamiento">Equipamiento</option><option value="Vía">Vía</option><option value="Zonas Verdes">Zonas Verdes</option></select>
+    </div>
+
+    <div class="side-block">
+      <h2>Zona</h2>
+      <select class="filter-select" id="filterZona"><option value="">Todas las zonas</option><option value="Rural">Rural</option><option value="Urbana">Urbana</option><option value="Urbana, Rural">Urbana, Rural</option></select>
+    </div>
+
+    <div class="side-block">
+      <h2>Supervisor</h2>
+      <select class="filter-select" id="filterSupervisor"><option value="">Todos los supervisores</option><option value="EDWIN JHOVANNY CARDONA ESCOBAR">EDWIN JHOVANNY CARDONA ESCOBAR</option><option value="GERMAN ALEXANDER CHAVEZ">GERMAN ALEXANDER CHAVEZ</option><option value="JOSE SEBASTIAN RUIZ LARA">JOSE SEBASTIAN RUIZ LARA</option><option value="NO DEFINIDO">NO DEFINIDO</option><option value="RICARDO RAMIREZ SERPA">RICARDO RAMIREZ SERPA</option></select>
+      <button class="reset-btn" id="resetBtn">Limpiar filtros</button>
+    </div>
+
+    <div class="side-footer">
+      <button class="about-link" id="aboutBtn">Acerca del tablero</button>
+      <div class="credit">v1 · datos: Base de datos - Contratos.xlsx</div>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <h2>Panorama general de contratos</h2>
+        <div class="desc">Valores, plazos y estado de ejecución de los contratos y convenios de la Subsecretaría de Gestión Técnica de Proyectos.</div>
+      </div>
+      <div class="filter-summary" id="filterSummary">Mostrando 56 de 56 contratos</div>
+    </div>
+
+    <!-- KPI cards -->
+    <div class="kpi-grid" id="kpiGrid">
+    <div class="kpi-card">
+      <div class="bar" style="background:var(--navy-800)"></div>
+      <div class="label">Contratos filtrados</div>
+      <div class="value ">56</div>
+      <div class="foot">de 56 en total</div>
+    </div>
+  
+    <div class="kpi-card">
+      <div class="bar" style="background:var(--amber)"></div>
+      <div class="label">Valor contratado</div>
+      <div class="value small">$396.4 mil M</div>
+      <div class="foot">$&nbsp;396.387.860.222</div>
+    </div>
+  
+    <div class="kpi-card">
+      <div class="bar" style="background:var(--teal)"></div>
+      <div class="label">Valor pagado</div>
+      <div class="value small">$298.3 mil M</div>
+      <div class="foot">$&nbsp;298.260.730.161</div>
+    </div>
+  
+    <div class="kpi-card">
+      <div class="bar" style="background:var(--green)"></div>
+      <div class="label">Ejecución financiera</div>
+      <div class="value ">75.2%</div>
+      <div class="foot">pagado / contratado</div>
+    </div>
+  
+    <div class="kpi-card">
+      <div class="bar" style="background:var(--blue)"></div>
+      <div class="label">En ejecución</div>
+      <div class="value ">8</div>
+      <div class="foot">24 liquidados</div>
+    </div>
+  
+    <div class="kpi-card">
+      <div class="bar" style="background:var(--red)"></div>
+      <div class="label">Por vencer (60 días)</div>
+      <div class="value ">2</div>
+      <div class="foot">en ejecución, vencen pronto</div>
+    </div>
+  </div>
+
+    <!-- Charts -->
+    <div class="charts-grid">
+      <div class="chart-card">
+        <h3>Contratos por estado</h3>
+        <div class="chart-wrap" id="chartEstado"><div class="donut-wrap"><svg viewBox="0 0 150 150" class="donut-svg"><circle cx="75" cy="75" r="55" fill="none" stroke="#2f7d5a" stroke-width="22" stroke-dasharray="49.367884556411035 296.20730733846625" stroke-dashoffset="0" transform="rotate(-90 75 75)"><title>En ejecución: 8 (14.3%)</title></circle><circle cx="75" cy="75" r="55" fill="none" stroke="#c9821a" stroke-width="22" stroke-dasharray="61.709855695513795 283.86533619936347" stroke-dashoffset="-49.367884556411035" transform="rotate(-90 75 75)"><title>Recibido: 10 (17.9%)</title></circle><circle cx="75" cy="75" r="55" fill="none" stroke="#6c7580" stroke-width="22" stroke-dasharray="80.22281240416794 265.3523794907093" stroke-dashoffset="-111.07774025192484" transform="rotate(-90 75 75)"><title>Terminado: 13 (23.2%)</title></circle><circle cx="75" cy="75" r="55" fill="none" stroke="#2f5f8a" stroke-width="22" stroke-dasharray="148.1036536692331 197.47153822564417" stroke-dashoffset="-191.30055265609278" transform="rotate(-90 75 75)"><title>Liquidado: 24 (42.9%)</title></circle><circle cx="75" cy="75" r="55" fill="none" stroke="#a8402f" stroke-width="22" stroke-dasharray="6.170985569551379 339.4042063253259" stroke-dashoffset="-339.40420632532584" transform="rotate(-90 75 75)"><title>N/D: 1 (1.8%)</title></circle><text x="75" y="72" text-anchor="middle" class="donut-center-num">56</text><text x="75" y="89" text-anchor="middle" class="donut-center-label">contratos</text></svg><div class="chart-legend">
+    <div class="legend-item">
+      <span class="legend-dot" style="background:#2f7d5a"></span>
+      <span class="legend-label">En ejecución</span>
+      <span class="legend-val">8</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot" style="background:#c9821a"></span>
+      <span class="legend-label">Recibido</span>
+      <span class="legend-val">10</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot" style="background:#6c7580"></span>
+      <span class="legend-label">Terminado</span>
+      <span class="legend-val">13</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot" style="background:#2f5f8a"></span>
+      <span class="legend-label">Liquidado</span>
+      <span class="legend-val">24</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot" style="background:#a8402f"></span>
+      <span class="legend-label">N/D</span>
+      <span class="legend-val">1</span>
+    </div></div></div></div>
+      </div>
+      <div class="chart-card">
+        <h3>Valor contratado por programa</h3>
+        <div class="chart-wrap" id="chartPrograma"><div class="hbar-wrap">
+    <div class="hbar-row">
+      <span class="hbar-label" title="Vía">Vía</span>
+      <div class="hbar-track">
+        <div class="hbar-fill" style="width:100%; background:#1f6f6f"></div>
+      </div>
+      <span class="hbar-val">$267.3 mil M</span>
+    </div>
+  
+    <div class="hbar-row">
+      <span class="hbar-label" title="Equipamiento">Equipamiento</span>
+      <div class="hbar-track">
+        <div class="hbar-fill" style="width:27.831153169645408%; background:#c9821a"></div>
+      </div>
+      <span class="hbar-val">$74.4 mil M</span>
+    </div>
+  
+    <div class="hbar-row">
+      <span class="hbar-label" title="APSB">APSB</span>
+      <div class="hbar-track">
+        <div class="hbar-fill" style="width:17.688434527072527%; background:#2f5f8a"></div>
+      </div>
+      <span class="hbar-val">$47.3 mil M</span>
+    </div>
+  
+    <div class="hbar-row">
+      <span class="hbar-label" title="Areas Estrategicas">Areas Estrategicas</span>
+      <div class="hbar-track">
+        <div class="hbar-fill" style="width:1.6687177631096124%; background:#2f7d5a"></div>
+      </div>
+      <span class="hbar-val">$4.5 mil M</span>
+    </div>
+  
+    <div class="hbar-row">
+      <span class="hbar-label" title="Zonas Verdes">Zonas Verdes</span>
+      <div class="hbar-track">
+        <div class="hbar-fill" style="width:1.1260414755442996%; background:#a8402f"></div>
+      </div>
+      <span class="hbar-val">$3 mil M</span>
+    </div>
+  </div></div>
+      </div>
+      <div class="chart-card">
+        <h3>Contratos y valor por año</h3>
+        <div class="chart-wrap" id="chartAno"><div class="vbar-wrap">
+    <div class="vbar-col" title="1 contratos · $8.2 mil M">
+      <div class="vbar-track">
+        <div class="vbar-fill" style="height:4.166666666666666%"></div>
+      </div>
+      <span class="vbar-count">1</span>
+      <span class="vbar-label">2020</span>
+    </div>
+  
+    <div class="vbar-col" title="4 contratos · $87.9 mil M">
+      <div class="vbar-track">
+        <div class="vbar-fill" style="height:16.666666666666664%"></div>
+      </div>
+      <span class="vbar-count">4</span>
+      <span class="vbar-label">2021</span>
+    </div>
+  
+    <div class="vbar-col" title="1 contratos · $12.1 mil M">
+      <div class="vbar-track">
+        <div class="vbar-fill" style="height:4.166666666666666%"></div>
+      </div>
+      <span class="vbar-count">1</span>
+      <span class="vbar-label">2022</span>
+    </div>
+  
+    <div class="vbar-col" title="24 contratos · $24.9 mil M">
+      <div class="vbar-track">
+        <div class="vbar-fill" style="height:100%"></div>
+      </div>
+      <span class="vbar-count">24</span>
+      <span class="vbar-label">2023</span>
+    </div>
+  
+    <div class="vbar-col" title="12 contratos · $76.4 mil M">
+      <div class="vbar-track">
+        <div class="vbar-fill" style="height:50%"></div>
+      </div>
+      <span class="vbar-count">12</span>
+      <span class="vbar-label">2024</span>
+    </div>
+  
+    <div class="vbar-col" title="14 contratos · $186.7 mil M">
+      <div class="vbar-track">
+        <div class="vbar-fill" style="height:58.333333333333336%"></div>
+      </div>
+      <span class="vbar-count">14</span>
+      <span class="vbar-label">2025</span>
+    </div>
+  </div></div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-card">
+      <div class="table-card-head">
+        <h3>Detalle de contratos</h3>
+        <div class="count" id="tableCount">56 de 56</div>
+      </div>
+      <div class="table-scroll">
+        <table class="data-table" id="dataTable">
+          <thead>
+            <tr>
+              <th data-key="No. Contrato">Contrato <span class="arrow">↕</span></th>
+              <th data-key="Nombre corto">Nombre / Contratista <span class="arrow">↕</span></th>
+              <th data-key="Estado">Estado <span class="arrow">↕</span></th>
+              <th data-key="F. Inicio" class="sorted">F. Inicio <span class="arrow">↓</span></th>
+              <th data-key="F. Terminación">F. Terminación <span class="arrow">↕</span></th>
+              <th data-key="Vr Total" class="num-th">Valor total <span class="arrow">↕</span></th>
+              <th data-key="Vr. Pagado" class="num-th">Pagado <span class="arrow">↕</span></th>
+              <th data-key="% Avance" class="num-th">% Avance <span class="arrow">↕</span></th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+    <tr data-idx="0">
+      <td class="mono">1051-2024</td>
+      <td class="name-cell">
+        <span class="main-txt">Con MinVivienda - EIS - Plan Maestro Urbano</span>
+        <span class="sub-txt">EIS CUCUTA SA ESP - MinVivienda</span>
+      </td>
+      <td><span class="badge badge-ejecucion">En ejecución</span></td>
+      <td>sin dato</td>
+      <td>sin dato</td>
+      <td class="num">$&nbsp;0</td>
+      <td class="num">N/D</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:0%"></div></span>N/D
+      </td>
+    </tr>
+    <tr data-idx="1">
+      <td class="mono">6456-2025</td>
+      <td class="name-cell">
+        <span class="main-txt">UM Gaitan</span>
+        <span class="sub-txt">SABA INGENIERIA Y CONSTRUCCIONES SAS</span>
+      </td>
+      <td><span class="badge badge-recibido">Recibido</span></td>
+      <td>24 de dic de 2025</td>
+      <td>16 de mar de 2026</td>
+      <td class="num">$&nbsp;441.985.143</td>
+      <td class="num">N/D</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:90%"></div></span>90.0%
+      </td>
+    </tr>
+    <tr data-idx="2">
+      <td class="mono">6480-2025</td>
+      <td class="name-cell">
+        <span class="main-txt">UM Santander</span>
+        <span class="sub-txt">VILLACE PROYECTOS SAS</span>
+      </td>
+      <td><span class="badge badge-recibido">Recibido</span></td>
+      <td>24 de dic de 2025</td>
+      <td>06 de mar de 2026</td>
+      <td class="num">$&nbsp;720.864.340</td>
+      <td class="num">N/D</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:90%"></div></span>90.0%
+      </td>
+    </tr>
+    <tr data-idx="3">
+      <td class="mono">6478-2025</td>
+      <td class="name-cell">
+        <span class="main-txt">Dotación Ceci</span>
+        <span class="sub-txt">OFFIDISEÑOS SOLUCIONES INTEGRALES SAS</span>
+      </td>
+      <td><span class="badge badge-terminado">Terminado</span></td>
+      <td>16 de dic de 2025</td>
+      <td>30 de dic de 2025</td>
+      <td class="num">$&nbsp;303.749.813</td>
+      <td class="num">N/D</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:0%"></div></span>N/D
+      </td>
+    </tr>
+    <tr data-idx="4">
+      <td class="mono">6451-2025</td>
+      <td class="name-cell">
+        <span class="main-txt">El Pórtico - San Pedro Puntos Críticos</span>
+        <span class="sub-txt">GRUPO DE CONSTRUCCION CIVIL</span>
+      </td>
+      <td><span class="badge badge-recibido">Recibido</span></td>
+      <td>04 de dic de 2025</td>
+      <td>25 de ene de 2026</td>
+      <td class="num">$&nbsp;186.294.300</td>
+      <td class="num">N/D</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:0%"></div></span>N/D
+      </td>
+    </tr>
+    <tr data-idx="5">
+      <td class="mono">5037-2025</td>
+      <td class="name-cell">
+        <span class="main-txt">con E-Desarrollo - Silla coja</span>
+        <span class="sub-txt">E-DESARROLLO SAS</span>
+      </td>
+      <td><span class="badge badge-ejecucion">En ejecución</span></td>
+      <td>14 de nov de 2025</td>
+      <td>15 de dic de 2027</td>
+      <td class="num">$&nbsp;46.372.276.409</td>
+      <td class="num">$&nbsp;0</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:0%"></div></span>0.0%
+      </td>
+    </tr>
+    <tr data-idx="6">
+      <td class="mono">5680-2025</td>
+      <td class="name-cell">
+        <span class="main-txt">con E-Desarrollo -Acueductos</span>
+        <span class="sub-txt">E-DESARROLLO SAS</span>
+      </td>
+      <td><span class="badge badge-ejecucion">En ejecución</span></td>
+      <td>12 de oct de 2025</td>
+      <td>09 de oct de 2026</td>
+      <td class="num">$&nbsp;7.472.506.975</td>
+      <td class="num">N/D</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:0%"></div></span>N/D
+      </td>
+    </tr>
+    <tr data-idx="7">
+      <td class="mono">5645-2025</td>
+      <td class="name-cell">
+        <span class="main-txt">La Floresta Consultoria</span>
+        <span class="sub-txt">José Mauricio Santiago Rosas</span>
+      </td>
+      <td><span class="badge badge-terminado">Terminado</span></td>
+      <td>11 de oct de 2025</td>
+      <td>31 de dic de 2025</td>
+      <td class="num">$&nbsp;133.504.150</td>
+      <td class="num">N/D</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:0%"></div></span>N/D
+      </td>
+    </tr>
+    <tr data-idx="8">
+      <td class="mono">4699-2025</td>
+      <td class="name-cell">
+        <span class="main-txt">con Corpocero - Placemaking</span>
+        <span class="sub-txt">CORPOCERO</span>
+      </td>
+      <td><span class="badge badge-terminado">Terminado</span></td>
+      <td>01 de oct de 2025</td>
+      <td>25 de abr de 2026</td>
+      <td class="num">$&nbsp;2.681.296.570</td>
+      <td class="num">$&nbsp;1.773.166.681</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:60%"></div></span>60.0%
+      </td>
+    </tr>
+    <tr data-idx="9">
+      <td class="mono">3290-2025</td>
+      <td class="name-cell">
+        <span class="main-txt">Con E - Desarrollo - Intervención vial</span>
+        <span class="sub-txt">E-DESARROLLO SAS</span>
+      </td>
+      <td><span class="badge badge-ejecucion">En ejecución</span></td>
+      <td>05 de ago de 2025</td>
+      <td>04 de nov de 2026</td>
+      <td class="num">$&nbsp;93.090.000.000</td>
+      <td class="num">$&nbsp;62.060.000.000</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:0%"></div></span>0.0%
+      </td>
+    </tr>
+    <tr data-idx="10">
+      <td class="mono">2382-2025</td>
+      <td class="name-cell">
+        <span class="main-txt">PRESUPUESTO PARTICIPATIVO COMUNAS 2, 3 y Rural Obra</span>
+        <span class="sub-txt">UNION TEMPORAL JM VIAL</span>
+      </td>
+      <td><span class="badge badge-liquidado">Liquidado</span></td>
+      <td>27 de may de 2025</td>
+      <td>02 de oct de 2025</td>
+      <td class="num">$&nbsp;1.981.000.000</td>
+      <td class="num">$&nbsp;781.000.000</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:65%"></div></span>65.0%
+      </td>
+    </tr>
+    <tr data-idx="11">
+      <td class="mono">2657-2025</td>
+      <td class="name-cell">
+        <span class="main-txt">PRESUPUESTO PARTICIPATIVO COMUNAS 2, 3 y Rural Intv</span>
+        <span class="sub-txt">CONSORCIO INTERVENTORÍA D VÍAS 2025</span>
+      </td>
+      <td><span class="badge badge-liquidado">Liquidado</span></td>
+      <td>27 de may de 2025</td>
+      <td>02 de oct de 2025</td>
+      <td class="num">$&nbsp;172.609.500</td>
+      <td class="num">$&nbsp;0</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:65%"></div></span>65.0%
+      </td>
+    </tr>
+    <tr data-idx="12">
+      <td class="mono">5350-2024</td>
+      <td class="name-cell">
+        <span class="main-txt">CONSULTORÍA MORELLI</span>
+        <span class="sub-txt">MAPG INGENIERIA CIVIL SAS</span>
+      </td>
+      <td><span class="badge badge-recibido">Recibido</span></td>
+      <td>20 de mar de 2025</td>
+      <td>01 de sept de 2025</td>
+      <td class="num">$&nbsp;104.911.000</td>
+      <td class="num">$&nbsp;0</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:100%"></div></span>100.0%
+      </td>
+    </tr>
+    <tr data-idx="13">
+      <td class="mono">5358-2024</td>
+      <td class="name-cell">
+        <span class="main-txt">CONSULTORÍA PLACAHUELLA RURAL</span>
+        <span class="sub-txt">MAPG INGENIERIA CIVIL SAS</span>
+      </td>
+      <td><span class="badge badge-recibido">Recibido</span></td>
+      <td>18 de mar de 2025</td>
+      <td>17 de may de 2025</td>
+      <td class="num">$&nbsp;63.000.001</td>
+      <td class="num">$&nbsp;0</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:100%"></div></span>100.0%
+      </td>
+    </tr>
+    <tr data-idx="14">
+      <td class="mono">755-2025</td>
+      <td class="name-cell">
+        <span class="main-txt">Optimización de Acueducto Urbanización Brisas del Río – Agua Clara</span>
+        <span class="sub-txt">UNIÓN TEMPORAL ACUEDUCTO BRISAS</span>
+      </td>
+      <td><span class="badge badge-liquidado">Liquidado</span></td>
+      <td>03 de mar de 2025</td>
+      <td>02 de may de 2025</td>
+      <td class="num">$&nbsp;211.345.029</td>
+      <td class="num">$&nbsp;190.210.526</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:100%"></div></span>100.0%
+      </td>
+    </tr>
+    <tr data-idx="15">
+      <td class="mono">927-2025</td>
+      <td class="name-cell">
+        <span class="main-txt">DEPENDENCIAS PALACIO</span>
+        <span class="sub-txt">UNION TEMPORAL REMODELACIONES CUCUTA 2024</span>
+      </td>
+      <td><span class="badge badge-liquidado">Liquidado</span></td>
+      <td>03 de mar de 2025</td>
+      <td>02 de dic de 2025</td>
+      <td class="num">$&nbsp;1.950.000.000</td>
+      <td class="num">$&nbsp;886.353.123</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:45%"></div></span>45.5%
+      </td>
+    </tr>
+    <tr data-idx="16">
+      <td class="mono">644-2025</td>
+      <td class="name-cell">
+        <span class="main-txt">Con INVIAS y Gober: INTERCAMBIADOR PINAR DEL RIO</span>
+        <span class="sub-txt">Gobernación Norte de Santander*</span>
+      </td>
+      <td><span class="badge badge-ejecucion">En ejecución</span></td>
+      <td>12 de feb de 2025</td>
+      <td>11 de feb de 2027</td>
+      <td class="num">$&nbsp;31.000.000.000</td>
+      <td class="num">$&nbsp;31.000.000.000</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:0%"></div></span>0.0%
+      </td>
+    </tr>
+    <tr data-idx="17">
+      <td class="mono">5363-2024</td>
+      <td class="name-cell">
+        <span class="main-txt">ASFALTO NATURAL</span>
+        <span class="sub-txt">Colombiana de Asfaltos SA</span>
+      </td>
+      <td><span class="badge badge-terminado">Terminado</span></td>
+      <td>23 de ene de 2025</td>
+      <td>26 de mar de 2025</td>
+      <td class="num">$&nbsp;195.777.071</td>
+      <td class="num">$&nbsp;0</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:0%"></div></span>N/D
+      </td>
+    </tr>
+    <tr data-idx="18">
+      <td class="mono">5323-2024</td>
+      <td class="name-cell">
+        <span class="main-txt">Con EIS - Optimización y mejoramiento del sistema de acueducto y alcantarillado pluvial en el área urbana y rural</span>
+        <span class="sub-txt">EIS CUCUTA SA ESP</span>
+      </td>
+      <td><span class="badge badge-ejecucion">En ejecución</span></td>
+      <td>20 de dic de 2024</td>
+      <td>31 de dic de 2026</td>
+      <td class="num">$&nbsp;11.755.104.170</td>
+      <td class="num">$&nbsp;11.755.104.170</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:0%"></div></span>N/D
+      </td>
+    </tr>
+    <tr data-idx="19">
+      <td class="mono">5067-2024</td>
+      <td class="name-cell">
+        <span class="main-txt">Con EIS - Sistemas de alcantarillado sanitario y pluvial urbano y rural</span>
+        <span class="sub-txt">EIS CUCUTA SA ESP</span>
+      </td>
+      <td><span class="badge badge-ejecucion">En ejecución</span></td>
+      <td>18 de dic de 2024</td>
+      <td>31 de dic de 2025</td>
+      <td class="num">$&nbsp;4.330.909.677</td>
+      <td class="num">$&nbsp;4.330.909.677</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:0%"></div></span>N/D
+      </td>
+    </tr>
+    <tr data-idx="20">
+      <td class="mono">502-2024</td>
+      <td class="name-cell">
+        <span class="main-txt">Con FOMCOLOMBIA: POLIGONO COMUNAS 3 Y 4</span>
+        <span class="sub-txt">FONDO DE INVERSION MIXTO - FOMCOLOMBIA</span>
+      </td>
+      <td><span class="badge badge-recibido">Recibido</span></td>
+      <td>27 de nov de 2024</td>
+      <td>N/D</td>
+      <td class="num">$&nbsp;22.000.000.000</td>
+      <td class="num">$&nbsp;22.000.000.000</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:65%"></div></span>65.0%
+      </td>
+    </tr>
+    <tr data-idx="21">
+      <td class="mono">436-2024</td>
+      <td class="name-cell">
+        <span class="main-txt">Con FOMCOLOMBIA: POLIGONO COMUNAS 1 Y 2</span>
+        <span class="sub-txt">FONDO DE INVERSION MIXTO - FOMCOLOMBIA</span>
+      </td>
+      <td><span class="badge badge-recibido">Recibido</span></td>
+      <td>11 de nov de 2024</td>
+      <td>N/D</td>
+      <td class="num">$&nbsp;31.000.000.000</td>
+      <td class="num">$&nbsp;31.000.000.000</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:83%"></div></span>83.0%
+      </td>
+    </tr>
+    <tr data-idx="22">
+      <td class="mono">4337-2024</td>
+      <td class="name-cell">
+        <span class="main-txt">Pozo profundo La Floresta Corregimiento Buena Esperanza</span>
+        <span class="sub-txt">CONSTRUCCIONES CONSULTORIA E INTERVENTORIA GUEMON SAS</span>
+      </td>
+      <td><span class="badge badge-recibido">Recibido</span></td>
+      <td>05 de nov de 2024</td>
+      <td>14 de dic de 2024</td>
+      <td class="num">$&nbsp;61.635.663</td>
+      <td class="num">$&nbsp;61.635.663</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:100%"></div></span>100.0%
+      </td>
+    </tr>
+    <tr data-idx="23">
+      <td class="mono">3306-2024</td>
+      <td class="name-cell">
+        <span class="main-txt">Con Corpocero - Mantenimiento de Zonas Verdes</span>
+        <span class="sub-txt">CORPOCERO</span>
+      </td>
+      <td><span class="badge badge-recibido">Recibido</span></td>
+      <td>12 de sept de 2024</td>
+      <td>15 de feb de 2025</td>
+      <td class="num">$&nbsp;2.457.968.716</td>
+      <td class="num">$&nbsp;2.457.968.716</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:100%"></div></span>100.0%
+      </td>
+    </tr>
+    <tr data-idx="24">
+      <td class="mono">3160-2024</td>
+      <td class="name-cell">
+        <span class="main-txt">Con Corponor - Adquisicion de áreas estrategicas</span>
+        <span class="sub-txt">CORPONOR - CORPORACION AUTONOMA REGIONAL DE LA FRONTERA NORORIENTA</span>
+      </td>
+      <td><span class="badge badge-liquidado">Liquidado</span></td>
+      <td>02 de sept de 2024</td>
+      <td>31 de dic de 2024</td>
+      <td class="num">$&nbsp;4.459.848.134</td>
+      <td class="num">N/D</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:0%"></div></span>N/D
+      </td>
+    </tr>
+    <tr data-idx="25">
+      <td class="mono">4459-2023</td>
+      <td class="name-cell">
+        <span class="main-txt">CEMENTERIO LOTE 1 Iluminacion</span>
+        <span class="sub-txt">DRECO INGENIERIA SAS</span>
+      </td>
+      <td><span class="badge badge-liquidado">Liquidado</span></td>
+      <td>11 de dic de 2023</td>
+      <td>12 de abr de 2024</td>
+      <td class="num">$&nbsp;318.308.700</td>
+      <td class="num">$&nbsp;318.308.700</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:100%"></div></span>100.0%
+      </td>
+    </tr>
+    <tr data-idx="26">
+      <td class="mono">4460-2023</td>
+      <td class="name-cell">
+        <span class="main-txt">CEMENTERIO LOTE 2 Concertina</span>
+        <span class="sub-txt">ASESORIAS Y CONSULTORIAS CONTRACTUALES C&amp;A SAS</span>
+      </td>
+      <td><span class="badge badge-liquidado">Liquidado</span></td>
+      <td>11 de dic de 2023</td>
+      <td>12 de mar de 2024</td>
+      <td class="num">$&nbsp;137.270.000</td>
+      <td class="num">$&nbsp;137.270.000</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:100%"></div></span>100.0%
+      </td>
+    </tr>
+    <tr data-idx="27">
+      <td class="mono">4260-2023</td>
+      <td class="name-cell">
+        <span class="main-txt">Mantenimiento Zonas Verdes Silvicultura</span>
+        <span class="sub-txt">INGPRA SAS</span>
+      </td>
+      <td><span class="badge badge-liquidado">Liquidado</span></td>
+      <td>29 de nov de 2023</td>
+      <td>02 de abr de 2024</td>
+      <td class="num">$&nbsp;289.475.791</td>
+      <td class="num">$&nbsp;289.475.791</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:100%"></div></span>100.0%
+      </td>
+    </tr>
+    <tr data-idx="28">
+      <td class="mono">4186-2023</td>
+      <td class="name-cell">
+        <span class="main-txt">RUTA FASE IV LOTE 2</span>
+        <span class="sub-txt">UNION TEMPORAL B&amp;A BACHEO L2</span>
+      </td>
+      <td><span class="badge badge-liquidado">Liquidado</span></td>
+      <td>29 de nov de 2023</td>
+      <td>15 de jun de 2024</td>
+      <td class="num">$&nbsp;1.803.299.489</td>
+      <td class="num">$&nbsp;1.803.299.489</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:100%"></div></span>100.0%
+      </td>
+    </tr>
+    <tr data-idx="29">
+      <td class="mono">4190-2023</td>
+      <td class="name-cell">
+        <span class="main-txt">RUTA FASE IV LOTE 4</span>
+        <span class="sub-txt">TECNICOS ESPECIALISTAS &amp; INGENIEROS INDUSTRIALES ASOCIADOS SAS</span>
+      </td>
+      <td><span class="badge badge-liquidado">Liquidado</span></td>
+      <td>29 de nov de 2023</td>
+      <td>29 de dic de 2024</td>
+      <td class="num">$&nbsp;1.052.432.512</td>
+      <td class="num">$&nbsp;1.052.432.512</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:100%"></div></span>100.0%
+      </td>
+    </tr>
+    <tr data-idx="30">
+      <td class="mono">4230-2023</td>
+      <td class="name-cell">
+        <span class="main-txt">RUTA FASE IV LOTE 1</span>
+        <span class="sub-txt">CONSORCIO FASE IV L1</span>
+      </td>
+      <td><span class="badge badge-liquidado">Liquidado</span></td>
+      <td>29 de nov de 2023</td>
+      <td>02 de may de 2024</td>
+      <td class="num">$&nbsp;702.308.324</td>
+      <td class="num">$&nbsp;702.308.324</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:100%"></div></span>100.0%
+      </td>
+    </tr>
+    <tr data-idx="31">
+      <td class="mono">4301-2023</td>
+      <td class="name-cell">
+        <span class="main-txt">RUTA FASE IV LOTE 3</span>
+        <span class="sub-txt">UNIÓN TEMPORAL MALLA VIAL 2023</span>
+      </td>
+      <td><span class="badge badge-liquidado">Liquidado</span></td>
+      <td>29 de nov de 2023</td>
+      <td>16 de jun de 2024</td>
+      <td class="num">$&nbsp;1.052.488.798</td>
+      <td class="num">$&nbsp;1.052.488.798</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:100%"></div></span>100.0%
+      </td>
+    </tr>
+    <tr data-idx="32">
+      <td class="mono">3888-2023</td>
+      <td class="name-cell">
+        <span class="main-txt">RUTA FASE IV INTV</span>
+        <span class="sub-txt">SOCIEDAD CONSORCIO PROESCO SAS</span>
+      </td>
+      <td><span class="badge badge-terminado">Terminado</span></td>
+      <td>29 de nov de 2023</td>
+      <td>01 de jul de 2024</td>
+      <td class="num">$&nbsp;436.082.640</td>
+      <td class="num">$&nbsp;436.082.640</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:100%"></div></span>100.0%
+      </td>
+    </tr>
+    <tr data-idx="33">
+      <td class="mono">4142-2023</td>
+      <td class="name-cell">
+        <span class="main-txt">SALONES COMUNALES ANTONIA SANTOS</span>
+        <span class="sub-txt">MAPG INGENIERIA CIVIL SAS</span>
+      </td>
+      <td><span class="badge badge-liquidado">Liquidado</span></td>
+      <td>20 de nov de 2023</td>
+      <td>19 de dic de 2024</td>
+      <td class="num">$&nbsp;179.235.458</td>
+      <td class="num">$&nbsp;179.235.458</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:100%"></div></span>100.0%
+      </td>
+    </tr>
+    <tr data-idx="34">
+      <td class="mono">3586-2023</td>
+      <td class="name-cell">
+        <span class="main-txt">ALCANTARILLADO LA CAÑADA INTV</span>
+        <span class="sub-txt">HAAEM INGENIERIA &amp; CONSULTORIA SAS</span>
+      </td>
+      <td><span class="badge badge-liquidado">Liquidado</span></td>
+      <td>11 de nov de 2023</td>
+      <td>14 de oct de 2024</td>
+      <td class="num">$&nbsp;418.750.290</td>
+      <td class="num">$&nbsp;418.750.290</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:100%"></div></span>100.0%
+      </td>
+    </tr>
+    <tr data-idx="35">
+      <td class="mono">4113-2023</td>
+      <td class="name-cell">
+        <span class="main-txt">Obra Parque La Cabrera Puente Barco</span>
+        <span class="sub-txt">ASESORÍAS Y CONSULTORÍAS CONTRACTUALES C&amp;A SAS</span>
+      </td>
+      <td><span class="badge badge-liquidado">Liquidado</span></td>
+      <td>10 de nov de 2023</td>
+      <td>17 de mar de 2024</td>
+      <td class="num">$&nbsp;262.036.236</td>
+      <td class="num">$&nbsp;262.036.236</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:100%"></div></span>100.0%
+      </td>
+    </tr>
+    <tr data-idx="36">
+      <td class="mono">4090-2023</td>
+      <td class="name-cell">
+        <span class="main-txt">ESTUDIOS MONUMENTO FEDECOMUNAL</span>
+        <span class="sub-txt">INGESÍSMICA CONSULTORÍA Y CONSTRUCCIÓN SAS</span>
+      </td>
+      <td><span class="badge badge-liquidado">Liquidado</span></td>
+      <td>01 de nov de 2023</td>
+      <td>31 de dic de 2023</td>
+      <td class="num">$&nbsp;40.834.354</td>
+      <td class="num">$&nbsp;36.750.401</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:100%"></div></span>100.0%
+      </td>
+    </tr>
+    <tr data-idx="37">
+      <td class="mono">3838-2023</td>
+      <td class="name-cell">
+        <span class="main-txt">PAR VIAL FASE II INTV</span>
+        <span class="sub-txt">MAPG INGENIERIA CIVIL SAS</span>
+      </td>
+      <td><span class="badge badge-terminado">Terminado</span></td>
+      <td>25 de oct de 2023</td>
+      <td>19 de jul de 2025</td>
+      <td class="num">$&nbsp;864.373.122</td>
+      <td class="num">$&nbsp;562.185.224</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:100%"></div></span>100.0%
+      </td>
+    </tr>
+    <tr data-idx="38">
+      <td class="mono">3837-2023</td>
+      <td class="name-cell">
+        <span class="main-txt">PAR VIAL FASE II OBRA</span>
+        <span class="sub-txt">SOSDOM S.A.S</span>
+      </td>
+      <td><span class="badge badge-terminado">Terminado</span></td>
+      <td>25 de oct de 2023</td>
+      <td>19 de jul de 2025</td>
+      <td class="num">$&nbsp;5.784.728.010</td>
+      <td class="num">$&nbsp;5.167.204.765</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:100%"></div></span>100.0%
+      </td>
+    </tr>
+    <tr data-idx="39">
+      <td class="mono">3745-2023</td>
+      <td class="name-cell">
+        <span class="main-txt">SEDES PROPIAS OBRA</span>
+        <span class="sub-txt">CONSORCIO SEDES PRO CUCUTA</span>
+      </td>
+      <td><span class="badge badge-liquidado">Liquidado</span></td>
+      <td>09 de oct de 2023</td>
+      <td>29 de dic de 2024</td>
+      <td class="num">$&nbsp;1.504.225.459</td>
+      <td class="num">$&nbsp;1.504.225.459</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:100%"></div></span>100.0%
+      </td>
+    </tr>
+    <tr data-idx="40">
+      <td class="mono">3742-2023</td>
+      <td class="name-cell">
+        <span class="main-txt">SEDES PROPIAS INTV</span>
+        <span class="sub-txt">MAPG INGENIERIA CIVIL SAS</span>
+      </td>
+      <td><span class="badge badge-recibido">Recibido</span></td>
+      <td>09 de oct de 2023</td>
+      <td>29 de feb de 2024</td>
+      <td class="num">$&nbsp;149.136.750</td>
+      <td class="num">$&nbsp;125.242.740</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:100%"></div></span>100.0%
+      </td>
+    </tr>
+    <tr data-idx="41">
+      <td class="mono">3695-2023</td>
+      <td class="name-cell">
+        <span class="main-txt">OPTIMIZACION ACUEDUCTO GUARAMITO FASE I INTV</span>
+        <span class="sub-txt">UNION TEMPORAL INTERVENTORIA GUARAMITO</span>
+      </td>
+      <td><span class="badge badge-liquidado">Liquidado</span></td>
+      <td>05 de oct de 2023</td>
+      <td>18 de dic de 2024</td>
+      <td class="num">$&nbsp;253.698.599</td>
+      <td class="num">$&nbsp;143.999.325</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:100%"></div></span>100.0%
+      </td>
+    </tr>
+    <tr data-idx="42">
+      <td class="mono">3618-2023</td>
+      <td class="name-cell">
+        <span class="main-txt">OPTIMIZACION ACUEDUCTO GUARAMITO FASE I OBRA</span>
+        <span class="sub-txt">ICSSA SAS</span>
+      </td>
+      <td><span class="badge badge-liquidado">Liquidado</span></td>
+      <td>05 de oct de 2023</td>
+      <td>18 de dic de 2024</td>
+      <td class="num">$&nbsp;1.955.645.982</td>
+      <td class="num">$&nbsp;1.601.951.416</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:100%"></div></span>100.0%
+      </td>
+    </tr>
+    <tr data-idx="43">
+      <td class="mono">3393-2023</td>
+      <td class="name-cell">
+        <span class="main-txt">OPTIMIZACION ACUEDUCTO AGUACLARA FASE I OBRA</span>
+        <span class="sub-txt">UNION TEMPORAL ACUEDUCTO GC CUCUTA</span>
+      </td>
+      <td><span class="badge badge-liquidado">Liquidado</span></td>
+      <td>13 de sept de 2023</td>
+      <td>15 de ago de 2024</td>
+      <td class="num">$&nbsp;2.837.118.740</td>
+      <td class="num">$&nbsp;2.837.118.740</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:100%"></div></span>100.0%
+      </td>
+    </tr>
+    <tr data-idx="44">
+      <td class="mono">3530-2023</td>
+      <td class="name-cell">
+        <span class="main-txt">OPTIMIZACION ACUEDUCTO AGUACLARA FASE I INTV</span>
+        <span class="sub-txt">UNIÓN TEMPORAL INTERACUEDUCTO AGUACLARA</span>
+      </td>
+      <td><span class="badge badge-liquidado">Liquidado</span></td>
+      <td>13 de sept de 2023</td>
+      <td>15 de ago de 2024</td>
+      <td class="num">$&nbsp;295.172.900</td>
+      <td class="num">$&nbsp;295.172.900</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:100%"></div></span>100.0%
+      </td>
+    </tr>
+    <tr data-idx="45">
+      <td class="mono">3335-2023</td>
+      <td class="name-cell">
+        <span class="main-txt">ALCANTARILLADO LA CAÑADA OBRA</span>
+        <span class="sub-txt">SOLUCIONES CIVILES DEL NORTE SAS</span>
+      </td>
+      <td><span class="badge badge-liquidado">Liquidado</span></td>
+      <td>11 de sept de 2023</td>
+      <td>14 de oct de 2024</td>
+      <td class="num">$&nbsp;2.698.927.839</td>
+      <td class="num">$&nbsp;2.698.927.821</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:100%"></div></span>100.0%
+      </td>
+    </tr>
+    <tr data-idx="46">
+      <td class="mono">3442-2023</td>
+      <td class="name-cell">
+        <span class="main-txt">SECTORES CRITICOS PLUVIAL OBRA</span>
+        <span class="sub-txt">UNION TEMPORAL DRECO PLUVIALES</span>
+      </td>
+      <td><span class="badge badge-liquidado">Liquidado</span></td>
+      <td>01 de sept de 2023</td>
+      <td>05 de feb de 2024</td>
+      <td class="num">$&nbsp;836.653.508</td>
+      <td class="num">$&nbsp;836.653.508</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:100%"></div></span>100.0%
+      </td>
+    </tr>
+    <tr data-idx="47">
+      <td class="mono">3461-2023</td>
+      <td class="name-cell">
+        <span class="main-txt">SECTORES CRITICOS PLUVIAL INTV</span>
+        <span class="sub-txt">ALGAR INGENIEROS SAS</span>
+      </td>
+      <td><span class="badge badge-liquidado">Liquidado</span></td>
+      <td>01 de sept de 2023</td>
+      <td>05 de feb de 2024</td>
+      <td class="num">$&nbsp;81.729.295</td>
+      <td class="num">$&nbsp;81.729.295</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:100%"></div></span>100.0%
+      </td>
+    </tr>
+    <tr data-idx="48">
+      <td class="mono">4327-2022</td>
+      <td class="name-cell">
+        <span class="main-txt">CB NIÑA CECI OBRA</span>
+        <span class="sub-txt">CONSORCIO CULTURAL HS</span>
+      </td>
+      <td><span class="badge badge-terminado">Terminado</span></td>
+      <td>30 de jun de 2023</td>
+      <td>12 de ago de 2025</td>
+      <td class="num">$&nbsp;12.138.179.602</td>
+      <td class="num">$&nbsp;10.916.496.087</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:90%"></div></span>89.9%
+      </td>
+    </tr>
+    <tr data-idx="49">
+      <td class="mono">1806-2023</td>
+      <td class="name-cell">
+        <span class="main-txt">CB NIÑA CECI INTV</span>
+        <span class="sub-txt">UNION TEMPORAL INTERCORAZON CECI</span>
+      </td>
+      <td><span class="badge badge-terminado">Terminado</span></td>
+      <td>30 de jun de 2023</td>
+      <td>12 de ago de 2025</td>
+      <td class="num">$&nbsp;973.437.980</td>
+      <td class="num">$&nbsp;876.094.182</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:90%"></div></span>90.0%
+      </td>
+    </tr>
+    <tr data-idx="50">
+      <td class="mono">3091-2021</td>
+      <td class="name-cell">
+        <span class="main-txt">con EIS - Proyectos de estudios, obras y campañas del programa de Agua Potable y Saneamiento Básico</span>
+        <span class="sub-txt">EIS CUCUTA SA ESP</span>
+      </td>
+      <td><span class="badge badge-terminado">Terminado</span></td>
+      <td>22 de nov de 2021</td>
+      <td>31 de dic de 2023</td>
+      <td class="num">$&nbsp;5.819.627.162</td>
+      <td class="num">$&nbsp;5.598.258.910</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:0%"></div></span>0.0%
+      </td>
+    </tr>
+    <tr data-idx="51">
+      <td class="mono">2837-2021</td>
+      <td class="name-cell">
+        <span class="main-txt">Con AMC:  Vía Av. Las Americas</span>
+        <span class="sub-txt">Área Metropolitana de Cúcuta</span>
+      </td>
+      <td><span class="badge badge-terminado">Terminado</span></td>
+      <td>29 de oct de 2021</td>
+      <td>28 de dic de 2025</td>
+      <td class="num">$&nbsp;28.104.045.176</td>
+      <td class="num">$&nbsp;28.000.000.000</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:100%"></div></span>100.0%
+      </td>
+    </tr>
+    <tr data-idx="52">
+      <td class="mono">1563-2021</td>
+      <td class="name-cell">
+        <span class="main-txt">Con AMC:  Col. Belén - CB Estoraques - CB Bancoarena - Parque Lineal Sevilla II</span>
+        <span class="sub-txt">Área Metropolitana de Cúcuta</span>
+      </td>
+      <td><span class="badge badge-ejecucion">En ejecución</span></td>
+      <td>09 de jul de 2021</td>
+      <td>30 de dic de 2025</td>
+      <td class="num">$&nbsp;22.711.473.135</td>
+      <td class="num">$&nbsp;22.711.473.135</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:98%"></div></span>98.0%
+      </td>
+    </tr>
+    <tr data-idx="53">
+      <td class="mono">1404-2021</td>
+      <td class="name-cell">
+        <span class="main-txt">Con AMC: Baterias - CB Scalabrini - CB La Libertad - Renovacion Av. Kenedy</span>
+        <span class="sub-txt">Área Metropolitana de Cúcuta</span>
+      </td>
+      <td><span class="badge badge-terminado">Terminado</span></td>
+      <td>16 de jun de 2021</td>
+      <td>30 de jun de 2025</td>
+      <td class="num">$&nbsp;31.294.943.194</td>
+      <td class="num">$&nbsp;31.294.943.194</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:100%"></div></span>100.0%
+      </td>
+    </tr>
+    <tr data-idx="54">
+      <td class="mono">1969-2020</td>
+      <td class="name-cell">
+        <span class="main-txt">Con EIS - Estudios y Diseños de Acueducto y Alcantarillado de Centros poblados rurales</span>
+        <span class="sub-txt">EIS CUCUTA SA ESP</span>
+      </td>
+      <td><span class="badge badge-terminado">Terminado</span></td>
+      <td>03 de dic de 2020</td>
+      <td>31 de dic de 2022</td>
+      <td class="num">$&nbsp;8.245.634.517</td>
+      <td class="num">$&nbsp;8.024.266.265</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:0%"></div></span>0.0%
+      </td>
+    </tr>
+    <tr data-idx="55">
+      <td class="mono">984-2024</td>
+      <td class="name-cell">
+        <span class="main-txt">Con MinVivienda - EIS - Agua al Barrio</span>
+        <span class="sub-txt">EIS CUCUTA SA ESP - MinVivienda</span>
+      </td>
+      <td><span class="badge badge-otro">N/D</span></td>
+      <td>N/D</td>
+      <td>N/D</td>
+      <td class="num">$&nbsp;0</td>
+      <td class="num">N/D</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:0%"></div></span>N/D
+      </td>
+    </tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <footer class="page-footer">Tablero generado a partir de la base de contratos de la Subsecretaría de Gestión Técnica de Proyectos · SIM · Alcaldía de San José de Cúcuta</footer>
+  </main>
+</div>
+
+<!-- ============ MODAL: DETALLE DE CONTRATO ============ -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div>
+        <div class="no" id="detailProceso"></div>
+        <h3 id="detailTitulo"></h3>
+      </div>
+      <button class="modal-close" id="detailClose">×</button>
+    </div>
+    <div class="modal-body" id="detailBody"></div>
+  </div>
+</div>
+
+<!-- ============ MODAL: ACERCA DEL TABLERO ============ -->
+<div class="modal-overlay" id="aboutModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div>
+        <h3>Acerca de este tablero</h3>
+      </div>
+      <button class="modal-close" id="aboutClose">×</button>
+    </div>
+    <div class="modal-body about-body">
+      <p>Este tablero consolida la información de contratos y convenios administrados por la Subsecretaría de Gestión Técnica de Proyectos de la Secretaría de Infraestructura Municipal (SIM), Alcaldía de San José de Cúcuta.</p>
+      <h4>Fuente de datos</h4>
+      <p>Hoja "Base" del archivo <strong>Base de datos - Contratos.xlsx</strong>, con 56 registros de contratos y convenios entre 2020 y 2025.</p>
+      <h4>Cómo leer los KPI</h4>
+      <ul>
+        <li><strong>Valor contratado:</strong> suma de "Vr Total" de los contratos que cumplen los filtros activos.</li>
+        <li><strong>Valor pagado:</strong> suma de "Vr. Pagado" de los contratos filtrados.</li>
+        <li><strong>Ejecución financiera:</strong> valor pagado dividido entre valor contratado, del conjunto filtrado.</li>
+        <li><strong>Por vencer (60 días):</strong> contratos en estado "En ejecución" cuya fecha de terminación cae dentro de los próximos 60 días desde hoy.</li>
+      </ul>
+      <h4>Filtros</h4>
+      <p>Los filtros de la barra lateral (año, estado, entidad, tipo, programa, zona, supervisor) y el buscador se combinan entre sí y actualizan en conjunto los KPI, las gráficas y la tabla.</p>
+      <h4>Notas</h4>
+      <p>Algunos contratos no registran todos los campos (NIT, BPIN, fechas de liquidación, etc.) en la base original; esos casos se muestran como "N/D" (no disponible). El archivo es autocontenido: los datos están incrustados en este mismo HTML.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+/* === DATOS === */
+const CONTRATOS_DATA = [{"No. Proceso": "SIM-CI-007-2020", "No. Contrato": "1969-2020", "Año": 2020.0, "Nombre corto": "Con EIS - Estudios y Diseños de Acueducto y Alcantarillado de Centros poblados rurales", "Tpg": "Conv.", "Objeto": "AUNAR ESFUERZOS TÉCNICOS, ADMINISTRATIVOS, FINANCIEROS Y JURÍDICOS PARA LA EJECUCIÓN DE PROYECTOS DE ESTUDIOS, DISEÑOS, CONSTRUCCIÓN, ADECUACIÓN Y MEJORAMIENTO DE SISTEMAS DE ACUEDUCTO Y ALCANTARILLADO SANITARIO Y PLUVIAL UBICADOS EN LA ZONA URBANA Y ZONA RURAL DEL MUNICIPIO DE SAN JOSÉ DE CÚCUTA, NORTE DE SANTANDER", "Estado": "Terminado", "F. Inicio": "2020-12-03", "F. Terminación": "2022-12-31", "Vr Total": 8245634517.0, "Restante": 0, "Reinicio": "N/A", "Contratista": "EIS CUCUTA SA ESP", "NIT Contratista": null, "R/L": "JOSE ANTONIO LIZARAZO SARMIENTO", "NIT R/L": null, "Entidad": "EIS", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "NO DEFINIDO", "Apoyo": null, "Fecha R.F": null, "Fecha Liquidación": null, "Vr. Pagado": 8024266265.0, "Pagado (%)": 0.9731532787, "% Avance": 0.0, "BPIN": null, "Programa": "APSB", "Zona": "Urbana, Rural", "Vr 2024-2027": 0.0, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-CI-003-2021", "No. Contrato": "1563-2021", "Año": 2021.0, "Nombre corto": "Con AMC:  Col. Belén - CB Estoraques - CB Bancoarena - Parque Lineal Sevilla II", "Tpg": "Conv.", "Objeto": "AUNAR ESFUERZOS TÉCNICOS, ADMINISTRATIVOS, FINANCIEROS Y JURÍDICOS PARA LA CONSTRUCCIÓN DE LOS PROYECTOS DE INVERSIÓN. CONSTRUCCIÓN COLEGIO NUESTRA SEÑORA,DE BELÉN, CORAZÓN DE BARRIO ESTORAQUE,S, CORAZÓN DE BARRIO BANCO DE ARENA, PARQUE LINEAL AVENIDA SEVILLA ETAPA 11, CONTEMPLADOS EN EL PLAN DE DESARROLLO 2020-2023 \"CÚCUTA 2050, ESTRATEGIA DE TODOS\" SEGÚN ACUERDO NO.17 DEL 7 DE DICIEMBRE D-E 2020.", "Estado": "En ejecución", "F. Inicio": "2021-07-09", "F. Terminación": "2025-12-30", "Vr Total": 22711473134.82, "Restante": 0, "Reinicio": "N/A", "Contratista": "Área Metropolitana de Cúcuta", "NIT Contratista": 800153197.0, "R/L": "N/A", "NIT R/L": "N/A", "Entidad": "AMC", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "GERMAN ALEXANDER CHAVEZ", "Apoyo": "Oscar Lizcano", "Fecha R.F": null, "Fecha Liquidación": null, "Vr. Pagado": 22711473134.82, "Pagado (%)": 1, "% Avance": 0.98, "BPIN": "2020540010255 \n2020540010254 \n2020540010283 \n2021540010046", "Programa": "Equipamiento", "Zona": "Urbana, Rural", "Vr 2024-2027": 542669720.8, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-CI-005- 2021", "No. Contrato": "2837-2021", "Año": 2021.0, "Nombre corto": "Con AMC:  Vía Av. Las Americas", "Tpg": "Conv.", "Objeto": "AUNAR ESFUERZOS TÉCNICOS ADMINISTRATIVOS Y FINANCIEROS PARA LA ELABORACIÓN DE LOS ESTUDIOS Y DISEÑOS Y EJECUCIÓN PARA EL MEJORAMIENTO Y O REALINEAMIENTO DE LA AVENIDALAS AMERICAS EN EL MUNICIPIO DE SAN JOSÉ DE CÚCUTA, NORTE DE SANTANDER", "Estado": "Terminado", "F. Inicio": "2021-10-29", "F. Terminación": "2025-12-28", "Vr Total": 28104045176.0, "Restante": 0, "Reinicio": "N/A", "Contratista": "Área Metropolitana de Cúcuta", "NIT Contratista": null, "R/L": null, "NIT R/L": null, "Entidad": "AMC", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "GERMAN ALEXANDER CHAVEZ", "Apoyo": "Carlos Caceres", "Fecha R.F": null, "Fecha Liquidación": null, "Vr. Pagado": 28000000000, "Pagado (%)": 0.9962978576, "% Avance": 1.0, "BPIN": null, "Programa": "Vía", "Zona": "Urbana", "Vr 2024-2027": 0.0, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-CI-001-2021", "No. Contrato": "1404-2021", "Año": 2021.0, "Nombre corto": "Con AMC: Baterias - CB Scalabrini - CB La Libertad - Renovacion Av. Kenedy", "Tpg": "Conv.", "Objeto": "AUNAR ESFUERZOS TÉCNICOS, ADMINISTRATIVOS Y FINANCIEROS PARA LA \"CONSTRUCCIÓN DE LOS PROYECTOS DE INVERSIÓN RELACIONADOS CON EL SECTOR EDUCATIVO, CORAZÓN DE BARRIO SCALABRINI, CORAZÓN DE BARRIO LIBERTAD Y RENOVACIÓN INTEGRAL URBANA AVENIDA KENNEDY\" CONTEMPLADOS EN EL PLAN DE DESARROLLO 2020-2023 \"CÚCUTA 2050, ESTRATEGIA DE TODOS\" SEGÚN ACUERDO NO.17 DEL 7 DE DICIEMBRE DE 2020", "Estado": "Terminado", "F. Inicio": "2021-06-16", "F. Terminación": "2025-06-30", "Vr Total": 31294943194.0, "Restante": 0, "Reinicio": "N/A", "Contratista": "Área Metropolitana de Cúcuta", "NIT Contratista": 800153197.0, "R/L": "N/A", "NIT R/L": "N/A", "Entidad": "AMC", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "GERMAN ALEXANDER CHAVEZ", "Apoyo": "Luis Gonzalo", "Fecha R.F": null, "Fecha Liquidación": null, "Vr. Pagado": 31294943194, "Pagado (%)": 1, "% Avance": 1.0, "BPIN": null, "Programa": "Equipamiento", "Zona": "Urbana", "Vr 2024-2027": 0.0, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-CI-007-2021", "No. Contrato": "3091-2021", "Año": 2021.0, "Nombre corto": "con EIS - Proyectos de estudios, obras y campañas del programa de Agua Potable y Saneamiento Básico", "Tpg": "Conv.", "Objeto": "AUNAR ESFUERZOS TÉCNICOS ADMINISTRATIVOS, FINANCIEROS, Y JURÍDICOS PARA LA EJECUCIÓN DE PROYECTOS DE ESTUDIOS, OBRAS Y CAMPAÑAS DEL PROGRAMA DE AGUA POTABLE Y SANEAMIENTO BÁSICO EN EL MUNICIPIO DE SAN JOSÉ DE CUCUTA.", "Estado": "Terminado", "F. Inicio": "2021-11-22", "F. Terminación": "2023-12-31", "Vr Total": 5819627161.73, "Restante": 0, "Reinicio": "N/A", "Contratista": "EIS CUCUTA SA ESP", "NIT Contratista": null, "R/L": "JOSE ANTONIO LIZARAZO SARMIENTO", "NIT R/L": null, "Entidad": "EIS", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "NO DEFINIDO", "Apoyo": null, "Fecha R.F": null, "Fecha Liquidación": null, "Vr. Pagado": 5598258910.13, "Pagado (%)": 0.9619617812, "% Avance": 0.0, "BPIN": "2020540010041 \n2020240010035 \n2020540010264 \n2020540010046", "Programa": "APSB", "Zona": "Urbana, Rural", "Vr 2024-2027": 0.0, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-LP-007-2022", "No. Contrato": "4327-2022", "Año": 2022.0, "Nombre corto": "CB NIÑA CECI OBRA", "Tpg": "Obra", "Objeto": "\"CONSTRUCCIÓN DEL CORAZÓN DE BARRIO NIÑA CECI EN EL MUNICIPIO DE SAN JOSÉ DE CÚCUTA, NORTE DE SANTANDER\".", "Estado": "Terminado", "F. Inicio": "2023-06-30", "F. Terminación": "2025-08-12", "Vr Total": 12138179602, "Restante": 0, "Reinicio": "N/A", "Contratista": "CONSORCIO CULTURAL HS", "NIT Contratista": 901732186.0, "R/L": "WILMER SAMUEL GIRALDO", "NIT R/L": 88228902.0, "Entidad": "ALCALDIA MSJC", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "RICARDO RAMIREZ SERPA", "Apoyo": "Obed Navarro", "Fecha R.F": null, "Fecha Liquidación": null, "Vr. Pagado": 10916496087, "Pagado (%)": 0.8993519988, "% Avance": 0.8993519988, "BPIN": 2020540010262.0, "Programa": "Equipamiento", "Zona": "Urbana", "Vr 2024-2027": 4044830580, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-SAM-008-2023", "No. Contrato": "4113-2023", "Año": 2023.0, "Nombre corto": "Obra Parque La Cabrera Puente Barco", "Tpg": "Obra", "Objeto": "MANTENIMIENTO Y/O MEJORAMIENTO DE PARQUES UBICADOS EN LA AVENIDA 4 CON CALLE 19 DEL BARRIO LA CABRERA - COMUNA 10 (PRESUPUESTO PARTICIPATIVO) DEL MUNICIPIO DE SAN JOSÉ DE CÚCUTA", "Estado": "Liquidado", "F. Inicio": "2023-11-10", "F. Terminación": "2024-03-17", "Vr Total": 262036236, "Restante": 0, "Reinicio": "N/A", "Contratista": "ASESORÍAS Y CONSULTORÍAS CONTRACTUALES C&A SAS", "NIT Contratista": "901221652-9", "R/L": "ADRIANA CAROLINA LIZARAZO HIGUERA", "NIT R/L": 60396923.0, "Entidad": "ALCALDIA MSJC", "Plazo Liq. bilateral": "N/A", "Fecha Liq. unilateral": "N/A", "Plazo caducidad": "N/A", "Plazo total": "N/A", "Fecha máx. Liq.": "N/A", "Supervisor": "EDWIN JHOVANNY CARDONA ESCOBAR", "Apoyo": "N/A", "Fecha R.F": "2024-04-19", "Fecha Liquidación": "2024-08-22", "Vr. Pagado": 262036236, "Pagado (%)": 1, "% Avance": 1.0, "BPIN": 2020540010051.0, "Programa": "Zonas Verdes", "Zona": "Urbana", "Vr 2024-2027": 0, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-SAM-007-2023", "No. Contrato": "4260-2023", "Año": 2023.0, "Nombre corto": "Mantenimiento Zonas Verdes Silvicultura", "Tpg": "Obra", "Objeto": "SERVICIO DE MANTENIMIENTO INTEGRAL DE ZONAS VERDES Y PLANTACION DE ESPECIES ARBOREAS Y ORNAMENTALES PARA EL PROGRAMA DE SILVICULTURA URBANA DEL MUNICIPIO DE SAN JOSÉ DE CÚCUTA FASE III", "Estado": "Liquidado", "F. Inicio": "2023-11-29", "F. Terminación": "2024-04-02", "Vr Total": 289475791, "Restante": 0, "Reinicio": "N/A", "Contratista": "INGPRA SAS", "NIT Contratista": "900937767-7", "R/L": "FABIAN ALBERTO PRATO DUARTE", "NIT R/L": 88241027.0, "Entidad": "ALCALDIA MSJC", "Plazo Liq. bilateral": "N/A", "Fecha Liq. unilateral": "N/A", "Plazo caducidad": "N/A", "Plazo total": "N/A", "Fecha máx. Liq.": "N/A", "Supervisor": "EDWIN JHOVANNY CARDONA ESCOBAR", "Apoyo": "N/A", "Fecha R.F": "2024-05-09", "Fecha Liquidación": "2024-07-11", "Vr. Pagado": 289475791, "Pagado (%)": 1, "% Avance": 1.0, "BPIN": 2020540010030.0, "Programa": "Zonas Verdes", "Zona": "Urbana", "Vr 2024-2027": 0.0, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-CMA-004-2022", "No. Contrato": "1806-2023", "Año": 2023.0, "Nombre corto": "CB NIÑA CECI INTV", "Tpg": "Intv.", "Objeto": "INTERVENTORIA, TECNICA, ADMINISTRATIVA, JURIDICA,FINANCIERA,SOCIAL, AMBIENTAL Y DE SEGURIDAD Y SALUD EN EL TRABAJO ALCONTRATO CUYO OBJETO ES: CONSTRUCCION Y DOTACION DEL CORAZON DE BARRIO NIÑA CECI EN EL MUNICIPIO DE SAN JOSE DE CUCUTA, NORTE DE SANTANDER", "Estado": "Terminado", "F. Inicio": "2023-06-30", "F. Terminación": "2025-08-12", "Vr Total": 973437980, "Restante": 0, "Reinicio": "N/A", "Contratista": "UNION TEMPORAL INTERCORAZON CECI", "NIT Contratista": 901754785.0, "R/L": "INGRID ESPERANZA BECERRA", "NIT R/L": 60358987.0, "Entidad": "ALCALDIA MSJC", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "RICARDO RAMIREZ SERPA", "Apoyo": "Obed Navarro", "Fecha R.F": null, "Fecha Liquidación": null, "Vr. Pagado": 876094182, "Pagado (%)": 0.9, "% Avance": 0.9, "BPIN": 2020540010262.0, "Programa": "Equipamiento", "Zona": "Urbana", "Vr 2024-2027": 324380742, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-LP-001-2023", "No. Contrato": "3335-2023", "Año": 2023.0, "Nombre corto": "ALCANTARILLADO LA CAÑADA OBRA", "Tpg": "Obra", "Objeto": "OBRAS DE MANTENIMIENTO, ADECUACIÓN, RECUPERACIÓN Y CONSTRUCCIÓN PARCIAL DE LA INFRAESTRUCTURA DEL ALCANTARILLADO PLUVIAL CANAL QUEBRADA LA CAÑADA, BARRIO PALMERAS, MUNICIPIO DE SAN JOSÉ DE CÚCUTA.", "Estado": "Liquidado", "F. Inicio": "2023-09-11", "F. Terminación": "2024-10-14", "Vr Total": 2698927839.0, "Restante": 0, "Reinicio": "N/A", "Contratista": "SOLUCIONES CIVILES DEL NORTE SAS", "NIT Contratista": "900562491-9", "R/L": "ALVARO ALFONSO RAMIREZ MORA", "NIT R/L": 88226824.0, "Entidad": "ALCALDIA MSJC", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "EDWIN JHOVANNY CARDONA ESCOBAR", "Apoyo": "N/A", "Fecha R.F": "2024-10-28", "Fecha Liquidación": "2024-12-19", "Vr. Pagado": 2698927821, "Pagado (%)": 0.9999999933, "% Avance": 1.0, "BPIN": 2020540010041.0, "Programa": "APSB", "Zona": "Urbana", "Vr 2024-2027": 969227982, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-LP-002-2023", "No. Contrato": "3393-2023", "Año": 2023.0, "Nombre corto": "OPTIMIZACION ACUEDUCTO AGUACLARA FASE I OBRA", "Tpg": "Obra", "Objeto": "OBRAS DE OPTIMIZACION DEL SISTEMA DE ACUEDUCTO DEL CENTRO POBLADO DE AGUACLARA - FASE I, MUNICIPIO DE SAN JOSE DE CUCUTA", "Estado": "Liquidado", "F. Inicio": "2023-09-13", "F. Terminación": "2024-08-15", "Vr Total": 2837118740, "Restante": 0, "Reinicio": "N/A", "Contratista": "UNION TEMPORAL ACUEDUCTO GC CUCUTA", "NIT Contratista": "901737588-0", "R/L": "JAIRO ENRIQUE MONSALVE MOGROVEJO", "NIT R/L": 13391529.0, "Entidad": "ALCALDIA MSJC", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "EDWIN JHOVANNY CARDONA ESCOBAR", "Apoyo": "N/A", "Fecha R.F": "2024-10-18", "Fecha Liquidación": "2024-12-19", "Vr. Pagado": 2837118740, "Pagado (%)": 1, "% Avance": 1.0, "BPIN": 2020540010035.0, "Programa": "APSB", "Zona": "Rural", "Vr 2024-2027": 934095120, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-SAM-002-2023", "No. Contrato": "3442-2023", "Año": 2023.0, "Nombre corto": "SECTORES CRITICOS PLUVIAL OBRA", "Tpg": "Obra", "Objeto": "MANTENIMIENTO, LIMPIEZA, RECUPERACIÓN Y ADECUACION DE SECTORES CRITICOS DEL SISTEMA PLUVIAL DEL MUNICIPIO DE SAN JOSE DE CUCUTA", "Estado": "Liquidado", "F. Inicio": "2023-09-01", "F. Terminación": "2024-02-05", "Vr Total": 836653508, "Restante": 0, "Reinicio": "N/A", "Contratista": "UNION TEMPORAL DRECO PLUVIALES", "NIT Contratista": "901740690-5", "R/L": "JAIRO JOSÉ BAUTISTA RAMIREZ", "NIT R/L": 13472612.0, "Entidad": "ALCALDIA MSJC", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "EDWIN JHOVANNY CARDONA ESCOBAR", "Apoyo": "N/A", "Fecha R.F": "2024-03-18", "Fecha Liquidación": "2024-06-13", "Vr. Pagado": 836653508, "Pagado (%)": 1, "% Avance": 1.0, "BPIN": 2020540010041.0, "Programa": "APSB", "Zona": "Urbana, Rural", "Vr 2024-2027": 0.0, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-MC-003-2023", "No. Contrato": "3461-2023", "Año": 2023.0, "Nombre corto": "SECTORES CRITICOS PLUVIAL INTV", "Tpg": "Intv.", "Objeto": "INTERVENTORÍA, TÉCNICA, ADMINISTRATIVA, JURÍDICA, FINANCIERA, SOCIAL, AMBIENTAL Y DE SEGURIDAD Y SALUD EN EL TRABAJO PARA EL MANTENIMIENTO, LIMPIEZA, RECUPERACIÓN Y ADECUACION DE SECTORES CRITICOS DEL SISTEMA PLUVIAL DEL MUNICIPIO DE SAN JOSE DE CUCUTA", "Estado": "Liquidado", "F. Inicio": "2023-09-01", "F. Terminación": "2024-02-05", "Vr Total": 81729295, "Restante": 0, "Reinicio": "N/A", "Contratista": "ALGAR INGENIEROS SAS", "NIT Contratista": "901553674-5", "R/L": "LIZETTE CHARLOT GARCIA GONZALEZ", "NIT R/L": 1098618459.0, "Entidad": "ALCALDIA MSJC", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "EDWIN JHOVANNY CARDONA ESCOBAR", "Apoyo": "N/A", "Fecha R.F": "2024-03-18", "Fecha Liquidación": "2024-06-13", "Vr. Pagado": 81729295, "Pagado (%)": 1, "% Avance": 1.0, "BPIN": 2020540010041.0, "Programa": "APSB", "Zona": "Urbana, Rural", "Vr 2024-2027": 0.0, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-CMA-002-2023", "No. Contrato": "3530-2023", "Año": 2023.0, "Nombre corto": "OPTIMIZACION ACUEDUCTO AGUACLARA FASE I INTV", "Tpg": "Intv.", "Objeto": "INTERVENTORÍA, TÉCNICA, ADMINISTRATIVA, JURÍDICA, FINANCIERA, SOCIAL, AMBIENTAL Y DE SEGURIDAD Y SALUD EN EL TRABAJO PARA OBRAS DE OPTIMIZACION DEL SISTEMA DE ACUEDUCTO DEL CENTRO POBLADO DE AGUACLARA - FASE I, MUNICIPIO DE SAN JOSE DE CUCUTA", "Estado": "Liquidado", "F. Inicio": "2023-09-13", "F. Terminación": "2024-08-15", "Vr Total": 295172900, "Restante": 0, "Reinicio": "N/A", "Contratista": "UNIÓN TEMPORAL INTERACUEDUCTO AGUACLARA", "NIT Contratista": "901746574-6", "R/L": "LIDIA SHIRLEY PARRA GARCIA", "NIT R/L": 60377366.0, "Entidad": "ALCALDIA MSJC", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "EDWIN JHOVANNY CARDONA ESCOBAR", "Apoyo": "N/A", "Fecha R.F": "2024-10-18", "Fecha Liquidación": "2024-12-19", "Vr. Pagado": 295172900, "Pagado (%)": 1, "% Avance": 1.0, "BPIN": 2020540010035.0, "Programa": "APSB", "Zona": "Rural", "Vr 2024-2027": 95172900, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-CMA-001-2023", "No. Contrato": "3586-2023", "Año": 2023.0, "Nombre corto": "ALCANTARILLADO LA CAÑADA INTV", "Tpg": "Intv.", "Objeto": "NTERVENTORÍA, TÉCNICA, ADMINISTRATIVA, JURÍDICA, FINANCIERA, SOCIAL, AMBIENTAL Y DE SEGURIDAD Y SALUD EN EL TRABAJO PARA OBRAS DE MANTENIMIENTO, ADECUACIÓN, RECUPERACIÓN Y CONSTRUCCIÓN PARCIAL DE LA INFRAESTRUCTURA DEL ALCANTARILLADO PLUVIAL CANAL QUEBRADA LA CAÑADA, BARRIO PALMERAS, MUNICIPIO DE SAN JOSÉ DE CÚCUTA", "Estado": "Liquidado", "F. Inicio": "2023-11-11", "F. Terminación": "2024-10-14", "Vr Total": 418750290.0, "Restante": 0, "Reinicio": "N/A", "Contratista": "HAAEM INGENIERIA & CONSULTORIA SAS", "NIT Contratista": "901605256-4", "R/L": "ANGELICA MARIA PATIÑO ECHAVARRIA", "NIT R/L": 1090372945.0, "Entidad": "ALCALDIA MSJC", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "EDWIN JHOVANNY CARDONA ESCOBAR", "Apoyo": "N/A", "Fecha R.F": "2024-11-07", "Fecha Liquidación": "2024-12-19", "Vr. Pagado": 418750290, "Pagado (%)": 1, "% Avance": 1.0, "BPIN": 2020540010041.0, "Programa": "APSB", "Zona": "Urbana", "Vr 2024-2027": 236680290, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-LP-004-2023", "No. Contrato": "3745-2023", "Año": 2023.0, "Nombre corto": "SEDES PROPIAS OBRA", "Tpg": "Obra", "Objeto": "MEJORAMIENTO, MANTENIMIENTO Y REPARACIONES LOCATIVAS DE SEDES PROPIAS DE LA ALCALDIA DE SAN JOSE DE CUCUTA", "Estado": "Liquidado", "F. Inicio": "2023-10-09", "F. Terminación": "2024-12-29", "Vr Total": 1504225459.0, "Restante": 0, "Reinicio": "N/A", "Contratista": "CONSORCIO SEDES PRO CUCUTA", "NIT Contratista": 901757244.0, "R/L": "OMAR ALVAREZ ALBARRACÍN", "NIT R/L": 13486023.0, "Entidad": "ALCALDIA MSJC", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "JOSE SEBASTIAN RUIZ LARA", "Apoyo": "Obed Navarro", "Fecha R.F": null, "Fecha Liquidación": null, "Vr. Pagado": 1504225459.0, "Pagado (%)": 1, "% Avance": 1.0, "BPIN": null, "Programa": "Equipamiento", "Zona": "Urbana", "Vr 2024-2027": 0.0, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-MC-008-2023", "No. Contrato": "4090-2023", "Año": 2023.0, "Nombre corto": "ESTUDIOS MONUMENTO FEDECOMUNAL", "Tpg": "Cons.", "Objeto": "REALIZAR ESTUDIOS Y DISEÑOS CON EL FIN DE LA CONSTRUCCIÓN DEL MONUMENTO QUE RINDE HOMENAJE, HONRA Y BUEN NOMBRE DE LOS LÍDERES DE FEDECOMUNAL CÚCUTA, EN CUMPLIMIENTO DE LA ACCIÓN DE SATISFACCIÓN Nº26477 DEL PLAN INTEGRAL DE REPARACIÓN COLECTIVA (PIRC) DEL SUJETO DE REPARACIÓN COLECTIVA (SRC) FEDECOMUNAL", "Estado": "Liquidado", "F. Inicio": "2023-11-01", "F. Terminación": "2023-12-31", "Vr Total": 40834354.0, "Restante": 0, "Reinicio": "N/A", "Contratista": "INGESÍSMICA CONSULTORÍA Y CONSTRUCCIÓN SAS", "NIT Contratista": 901331222.0, "R/L": "SUGEY ELENA CRESPO VERGARA", "NIT R/L": 1102825812.0, "Entidad": "ALCALDIA MSJC", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "JOSE SEBASTIAN RUIZ LARA", "Apoyo": "Obed Navarro", "Fecha R.F": null, "Fecha Liquidación": null, "Vr. Pagado": 36750401.1, "Pagado (%)": 0.8999873268, "% Avance": 1.0, "BPIN": null, "Programa": "Equipamiento", "Zona": "Urbana", "Vr 2024-2027": 0.0, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-CMA-008-2023", "No. Contrato": "4142-2023", "Año": 2023.0, "Nombre corto": "SALONES COMUNALES ANTONIA SANTOS", "Tpg": "Cons.", "Objeto": "REALIZAR ESTUDIOS Y DISEÑOS DEL SALÓN COMUNAL DE ANTONIA SANTOS Y DEL CENTRO DE INNOVACIÓN Y EMPRENDIMIENTO COMUNAL EN EL MARCO DEL CUMPLIMIENTO A LAS ACCIONES 19625 Y 26456 DEL DEL PLAN INTEGRAL DE REPARACIÓN COLECTIVA (PIRC) DE LOS SUJETOS DE REPARACIÓN COLECTIVA (SRC) DE LA COMUNIDAD DEL SECTOR ANTONIA SANTOS, (ANTONIA SANTOS, LOS OLIVOS, SABANA VERDE, CAROLINAS PRIMAVERA Y ASENTAMIENTOS SUBNORMAL BRISAS), Y DEL SRC FEDECOMUNA", "Estado": "Liquidado", "F. Inicio": "2023-11-20", "F. Terminación": "2024-12-19", "Vr Total": 179235458.0, "Restante": 0, "Reinicio": "N/A", "Contratista": "MAPG INGENIERIA CIVIL SAS", "NIT Contratista": 901294312.0, "R/L": "MAIRA ALEJANDRA PICON GARCIA", "NIT R/L": 31331288.0, "Entidad": "ALCALDIA MSJC", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "JOSE SEBASTIAN RUIZ LARA", "Apoyo": "Estefany Cassanova", "Fecha R.F": null, "Fecha Liquidación": null, "Vr. Pagado": 179235458.0, "Pagado (%)": 1, "% Avance": 1.0, "BPIN": null, "Programa": "Equipamiento", "Zona": "Urbana", "Vr 2024-2027": 0.0, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-LP-006-2023", "No. Contrato": "4186-2023", "Año": 2023.0, "Nombre corto": "RUTA FASE IV LOTE 2", "Tpg": "Obra", "Objeto": "DIAGNOSTICO, CONSTRUCCION Y/O REHABILITACION Y/O MEJORAMIENTO DE LA MALLA VIAL URBANA DEL MUNICIPIO DE SAN JOSE DE CUCUTA FASE IV LOTE 2", "Estado": "Liquidado", "F. Inicio": "2023-11-29", "F. Terminación": "2024-06-15", "Vr Total": 1803299489, "Restante": 0, "Reinicio": "N/A", "Contratista": "UNION TEMPORAL B&A BACHEO L2", "NIT Contratista": "901770081 8", "R/L": "SAID ARIAS PICON", "NIT R/L": 13491729.0, "Entidad": "ALCALDIA MSJC", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "JOSE SEBASTIAN RUIZ LARA", "Apoyo": "Oscar Rojas", "Fecha R.F": "2024-09-14", "Fecha Liquidación": "2024-09-26", "Vr. Pagado": 1803299489, "Pagado (%)": 1, "% Avance": 1.0, "BPIN": 2020540010054.0, "Programa": "Vía", "Zona": "Urbana", "Vr 2024-2027": 600741071, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-LP-006-2023", "No. Contrato": "4190-2023", "Año": 2023.0, "Nombre corto": "RUTA FASE IV LOTE 4", "Tpg": "Obra", "Objeto": "DIAGNOSTICO, CONSTRUCCION Y/O REHABILITACION Y/O MEJORAMIENTO DE LA MALLA VIAL URBANA DEL MUNICIPIO DE SAN JOSE DE CUCUTA FASE IV LOTE 4", "Estado": "Liquidado", "F. Inicio": "2023-11-29", "F. Terminación": "2024-12-29", "Vr Total": 1052432512, "Restante": 0, "Reinicio": "N/A", "Contratista": "TECNICOS ESPECIALISTAS & INGENIEROS INDUSTRIALES ASOCIADOS SAS", "NIT Contratista": "800074273-3", "R/L": "JUAN ADOLFO MENDOZA DURAN", "NIT R/L": 1098636992.0, "Entidad": "ALCALDIA MSJC", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "JOSE SEBASTIAN RUIZ LARA", "Apoyo": "Oscar Rojas", "Fecha R.F": "2024-04-26", "Fecha Liquidación": "2024-09-09", "Vr. Pagado": 1052432512, "Pagado (%)": 1, "% Avance": 1.0, "BPIN": 2020540010054.0, "Programa": "Vía", "Zona": "Urbana", "Vr 2024-2027": 0.0, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-LP-006-2023", "No. Contrato": "4230-2023", "Año": 2023.0, "Nombre corto": "RUTA FASE IV LOTE 1", "Tpg": "Obra", "Objeto": "DIAGNOSTICO, CONSTRUCCION Y/O REHABILITACION Y/O MEJORAMIENTO DE LA MALLA VIAL URBANA DEL MUNICIPIO DE SAN JOSE DE CUCUTA FASE IV -LOTE 1", "Estado": "Liquidado", "F. Inicio": "2023-11-29", "F. Terminación": "2024-05-02", "Vr Total": 702308324, "Restante": 0, "Reinicio": "N/A", "Contratista": "CONSORCIO FASE IV L1", "NIT Contratista": "901779706-3", "R/L": "JUAN DIEGO GUTIÉRREZ BARRERA", "NIT R/L": 1093294057.0, "Entidad": "ALCALDIA MSJC", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "JOSE SEBASTIAN RUIZ LARA", "Apoyo": "Oscar Rojas", "Fecha R.F": "2024-09-26", "Fecha Liquidación": "2024-12-13", "Vr. Pagado": 702308324, "Pagado (%)": 1, "% Avance": 1.0, "BPIN": 2020540010054.0, "Programa": "Vía", "Zona": "Urbana", "Vr 2024-2027": 0.0, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-LP-006-2023", "No. Contrato": "4301-2023", "Año": 2023.0, "Nombre corto": "RUTA FASE IV LOTE 3", "Tpg": "Obra", "Objeto": "\"DIAGNOSTICO, CONSTRUCCION Y/O REHABILITACION Y/O MEJORAMIENTO DE LA MALLA VIAL URBANA DEL MUNICIPIO DE SAN JOSE DE CUCUTA FASE IV” LOTE 3", "Estado": "Liquidado", "F. Inicio": "2023-11-29", "F. Terminación": "2024-06-16", "Vr Total": 1052488798, "Restante": 0, "Reinicio": "N/A", "Contratista": "UNIÓN TEMPORAL MALLA VIAL 2023", "NIT Contratista": "901783386-5", "R/L": "SAUL RINCON VILLAMIZAR", "NIT R/L": 13469819.0, "Entidad": "ALCALDIA MSJC", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "JOSE SEBASTIAN RUIZ LARA", "Apoyo": "Oscar Rojas", "Fecha R.F": "2024-08-22", "Fecha Liquidación": "2024-12-19", "Vr. Pagado": 1052488798, "Pagado (%)": 1, "% Avance": 1.0, "BPIN": 2020540010054.0, "Programa": "Vía", "Zona": "Urbana", "Vr 2024-2027": 349930379, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-SAM-009-2023", "No. Contrato": "4459-2023", "Año": 2023.0, "Nombre corto": "CEMENTERIO LOTE 1 Iluminacion", "Tpg": "Obra", "Objeto": "MANTENIMIENTO Y/O RECONSTRUCCION DE ILUMINACION Y SEGURIDAD DEL MURO DE CERRAMIENTO EN EL CEMENTERIO CENTRAL DE SAN JOSE DE CUCUTA EN CUMPLIMIENTO DE MEDIDA CAUTELAR JEP LOTE 1", "Estado": "Liquidado", "F. Inicio": "2023-12-11", "F. Terminación": "2024-04-12", "Vr Total": 318308700.0, "Restante": 0, "Reinicio": "N/A", "Contratista": "DRECO INGENIERIA SAS", "NIT Contratista": 901100536.0, "R/L": "KARINA YURLEY GARAVITO TOLOZA", "NIT R/L": 1093885239.0, "Entidad": "ALCALDIA MSJC", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "JOSE SEBASTIAN RUIZ LARA", "Apoyo": "Adriana Sanchez", "Fecha R.F": null, "Fecha Liquidación": null, "Vr. Pagado": 318308700.0, "Pagado (%)": 1, "% Avance": 1.0, "BPIN": null, "Programa": "Equipamiento", "Zona": "Urbana", "Vr 2024-2027": 0.0, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-SAM-009-2023", "No. Contrato": "4460-2023", "Año": 2023.0, "Nombre corto": "CEMENTERIO LOTE 2 Concertina", "Tpg": "Obra", "Objeto": "MANTENIMIENTO Y/O RECONSTRUCCION DE ILUMINACION Y SEGURIDAD DEL MURO DE CERRAMIENTO EN EL CEMENTERIO CENTRAL DE SAN JOSE DE CUCUTA EN CUMPLIMIENTO DE MEDIDA CAUTELAR JEP LOTE 2", "Estado": "Liquidado", "F. Inicio": "2023-12-11", "F. Terminación": "2024-03-12", "Vr Total": 137270000.0, "Restante": 0, "Reinicio": "N/A", "Contratista": "ASESORIAS Y CONSULTORIAS CONTRACTUALES C&A SAS", "NIT Contratista": 901221652.0, "R/L": "ADRIANA CAROLINA LIZARAZO HIGUERA", "NIT R/L": 60396923.0, "Entidad": "ALCALDIA MSJC", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "JOSE SEBASTIAN RUIZ LARA", "Apoyo": "Adriana Sanchez", "Fecha R.F": null, "Fecha Liquidación": null, "Vr. Pagado": 137270000.0, "Pagado (%)": 1, "% Avance": 1.0, "BPIN": null, "Programa": "Equipamiento", "Zona": "Urbana", "Vr 2024-2027": 0.0, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-CMA-003-2023", "No. Contrato": "3695-2023", "Año": 2023.0, "Nombre corto": "OPTIMIZACION ACUEDUCTO GUARAMITO FASE I INTV", "Tpg": "Intv.", "Objeto": "INTERVENTORÍA, TÉCNICA, ADMINISTRATIVA, JURÍDICA, FINANCIERA, SOCIAL, AMBIENTAL Y DE SEGURIDAD Y SALUD EN EL TRABAJO PARA OBRAS DE OPTIMIZACION DEL SISTEMA DE ACUEDUCTO DEL CENTRO POBLADO DE GUARAMITO, MUNICIPIO DE SAN JOSE DE CUCUTA", "Estado": "Liquidado", "F. Inicio": "2023-10-05", "F. Terminación": "2024-12-18", "Vr Total": 253698599, "Restante": 0, "Reinicio": "N/A", "Contratista": "UNION TEMPORAL INTERVENTORIA GUARAMITO", "NIT Contratista": "901754202-5", "R/L": "LIDIA SHIRLEY PARRA GARCIA", "NIT R/L": 60377366.0, "Entidad": "ALCALDIA MSJC", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "NO DEFINIDO", "Apoyo": "N/A", "Fecha R.F": "2025-04-02", "Fecha Liquidación": null, "Vr. Pagado": 143999325, "Pagado (%)": 0.5676000008, "% Avance": 1.0, "BPIN": 2020540010035.0, "Programa": "APSB", "Zona": "Rural", "Vr 2024-2027": 110698599, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-LP-003-2023", "No. Contrato": "3618-2023", "Año": 2023.0, "Nombre corto": "OPTIMIZACION ACUEDUCTO GUARAMITO FASE I OBRA", "Tpg": "Obra", "Objeto": "OBRAS DE OPTIMIZACION DEL SISTEMA DE ACUEDUCTO DEL CENTRO POBLADO DE GUARAMITO - FASE I, MUNICIPIO DE SAN JOSE DE CUCUTA", "Estado": "Liquidado", "F. Inicio": "2023-10-05", "F. Terminación": "2024-12-18", "Vr Total": 1955645982, "Restante": 0, "Reinicio": "N/A", "Contratista": "ICSSA SAS", "NIT Contratista": "901450894-6", "R/L": "SANTIAGO SANCHEZ MANTILLA", "NIT R/L": null, "Entidad": "ALCALDIA MSJC", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "NO DEFINIDO", "Apoyo": "N/A", "Fecha R.F": "2025-04-02", "Fecha Liquidación": null, "Vr. Pagado": 1601951416, "Pagado (%)": 0.8191418236, "% Avance": 1.0, "BPIN": 2020540010035.0, "Programa": "APSB", "Zona": "Rural", "Vr 2024-2027": 651678081, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-CMA-006-2023", "No. Contrato": "3838-2023", "Año": 2023.0, "Nombre corto": "PAR VIAL FASE II INTV", "Tpg": "Intv.", "Objeto": "INTERVENTORÍA, TÉCNICA, ADMINISTRATIVA, JURÍDICA, FINANCIERA, SOCIAL, AMBIENTAL Y DE SEGURIDAD Y SALUD EN EL TRABAJO AL CONTRATO CUYO OBJETO ES: CONSTRUCCIÓN Y/O REHABILITACIÓN DEL PAR VIAL DEL BARRIO AEROPUERTO DEL MUNICIPIO DE SAN JOSÉ DE CÚCUTA, NORTE DE SANTANDER FASE II", "Estado": "Terminado", "F. Inicio": "2023-10-25", "F. Terminación": "2025-07-19", "Vr Total": 864373122.0, "Restante": 0, "Reinicio": "N/A", "Contratista": "MAPG INGENIERIA CIVIL SAS", "NIT Contratista": null, "R/L": null, "NIT R/L": null, "Entidad": "ALCALDIA MSJC", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "GERMAN ALEXANDER CHAVEZ", "Apoyo": "Oscar Lizcano", "Fecha R.F": null, "Fecha Liquidación": null, "Vr. Pagado": 562185224, "Pagado (%)": 0.6503964662, "% Avance": 1.0, "BPIN": 2021540010059.0, "Programa": "Vía", "Zona": "Urbana", "Vr 2024-2027": 571652662, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-LP-005-2023", "No. Contrato": "3837-2023", "Año": 2023.0, "Nombre corto": "PAR VIAL FASE II OBRA", "Tpg": "Obra", "Objeto": "CONSTRUCCIÓN Y/O REHABILITACIÓN DEL PAR VIAL DEL BARRIO AEROPUERTO DEL MUNICIPIO DE SAN JOSÉ DE CÚCUTA, NORTE DE SANTANDER FASE II", "Estado": "Terminado", "F. Inicio": "2023-10-25", "F. Terminación": "2025-07-19", "Vr Total": 5784728010.0, "Restante": 0, "Reinicio": "N/A", "Contratista": "SOSDOM S.A.S", "NIT Contratista": null, "R/L": null, "NIT R/L": null, "Entidad": "ALCALDIA MSJC", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "GERMAN ALEXANDER CHAVEZ", "Apoyo": "Oscar Lizcano", "Fecha R.F": null, "Fecha Liquidación": null, "Vr. Pagado": 5167204765, "Pagado (%)": 0.8932493898, "% Avance": 1.0, "BPIN": 2021540010059.0, "Programa": "Vía", "Zona": "Urbana", "Vr 2024-2027": 1899000000.0, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-CMA-007-2023", "No. Contrato": "3888-2023", "Año": 2023.0, "Nombre corto": "RUTA FASE IV INTV", "Tpg": "Intv.", "Objeto": "INTERVENTORÍA, TÉCNICA ADMINISTRATIVA JURÍDICA FINANCIERA SOCIAL AMBIENTAL Y DE SEGURIDAD Y SALUD EN EL TRABAJO AL CONTRATO CUYO OBJETO ES DIAGNOSTICO CONSTRUCCION Y/O REHABILITACION Y MANTENIMIENTO DE LA MALLA VIAL URBANA DEL MUNICIPIO DE SAN JOSE DE CUCUTA", "Estado": "Terminado", "F. Inicio": "2023-11-29", "F. Terminación": "2024-07-01", "Vr Total": 436082640, "Restante": 0, "Reinicio": "N/A", "Contratista": "SOCIEDAD CONSORCIO PROESCO SAS", "NIT Contratista": "830508442-5", "R/L": "NOHEMI RIVERA RIVEROS", "NIT R/L": 1090457248.0, "Entidad": "ALCALDIA MSJC", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "NO DEFINIDO", "Apoyo": "Oscar Rojas", "Fecha R.F": "2024-11-26", "Fecha Liquidación": 0.0, "Vr. Pagado": 436082640, "Pagado (%)": 1, "% Avance": 1.0, "BPIN": 2020540010054.0, "Programa": "Vía", "Zona": "Urbana", "Vr 2024-2027": 246316315, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-CMA-004-2023", "No. Contrato": "3742-2023", "Año": 2023.0, "Nombre corto": "SEDES PROPIAS INTV", "Tpg": "Intv.", "Objeto": "INTERVENTORÍA, TECNICA, ADMINISTRATIVA, JURIDICA, FINANCIERA, SOCIAL, AMBIENTAL Y DE SEGURIDAD Y SALUD EN EL TRABAJO AL CONTRATO CUYO OBJETO ES: MEJORAMIENTO, MANTENIMIENTO Y REPARACIONES LOCATIVAS DE SEDES PROPIAS DE LA ALCALDIA DE SAN JOSE DE CUCUTA", "Estado": "Recibido", "F. Inicio": "2023-10-09", "F. Terminación": "2024-02-29", "Vr Total": 149136750.0, "Restante": 0, "Reinicio": "N/A", "Contratista": "MAPG INGENIERIA CIVIL SAS", "NIT Contratista": 901294312.0, "R/L": "MAIRA ALEJANDRA PICON GARCIA", "NIT R/L": 31331288.0, "Entidad": "ALCALDIA MSJC", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "NO DEFINIDO", "Apoyo": "Obed Navarro", "Fecha R.F": null, "Fecha Liquidación": null, "Vr. Pagado": 125242740, "Pagado (%)": 0.8397845601, "% Avance": 1.0, "BPIN": null, "Programa": "Equipamiento", "Zona": "Urbana", "Vr 2024-2027": 0.0, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "Sin datos", "No. Contrato": "1051-2024", "Año": 2024.0, "Nombre corto": "Con MinVivienda - EIS - Plan Maestro Urbano", "Tpg": "Conv.", "Objeto": "AUNAR ESFUERZOS Y ESTABLECER LOS TERMINOS Y CONDICIONES PARA EL MANEJO Y EJECUCION DE LOS RECURSOS DE APOYO FINANCIERO DE LA NACION AL MUNICIPIO DE SAN JOSE DE CUCUTA, DEPARTAMENTO DE NORTE DE SANTANDER, EN CALIDAD DE BENEFICIARIO, CONFORME CON EL ACTO ADMINISTRATIVO DE RECURSOS DESTINADOS PARA LA EJECUCION DEL PROYECTO DENOMINADO: “CONSULTORIA PARA EL PLAN MAESTRO URBANO DE ALCANTARILLADO PLUVIAL, Y ESTUDIOS Y DISEÑOS PRIMERA FASE EN EL MUNICIPIO DE CUCUTA, DEPARTAMENTO DE NORTE DE SANTANDER", "Estado": "En ejecución", "F. Inicio": "sin dato", "F. Terminación": "sin dato", "Vr Total": 0.0, "Restante": null, "Reinicio": "N/A", "Contratista": "EIS CUCUTA SA ESP - MinVivienda", "NIT Contratista": null, "R/L": null, "NIT R/L": null, "Entidad": "EIS - MinVivienda", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "NO DEFINIDO", "Apoyo": "Pendiente", "Fecha R.F": null, "Fecha Liquidación": null, "Vr. Pagado": null, "Pagado (%)": 0, "% Avance": null, "BPIN": 2020540010041.0, "Programa": "APSB", "Zona": null, "Vr 2024-2027": 0.0, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-CI-006-2024", "No. Contrato": "3160-2024", "Año": 2024.0, "Nombre corto": "Con Corponor - Adquisicion de áreas estrategicas", "Tpg": "Conv.", "Objeto": "ADQUISICION Y PRESERVACION DE LAS ÁREAS ESTRATÉGICAS PARA LA PRESERVACION DEL RECURSO HIDRICO EN EL MUNICIPIO DE SAN JOSÉ DE CÚCUTA", "Estado": "Liquidado", "F. Inicio": "2024-09-02", "F. Terminación": "2024-12-31", "Vr Total": 4459848134.06, "Restante": 0, "Reinicio": "N/A", "Contratista": "CORPONOR - CORPORACION AUTONOMA REGIONAL DE LA FRONTERA NORORIENTA", "NIT Contratista": "890505253-4", "R/L": "RAFAEL HUMBERTO CAMACHO CARRILLO", "NIT R/L": 1090374753.0, "Entidad": "Corponor", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "NO DEFINIDO", "Apoyo": null, "Fecha R.F": null, "Fecha Liquidación": null, "Vr. Pagado": null, "Pagado (%)": 0, "% Avance": null, "BPIN": 2021540010062.0, "Programa": "Areas Estrategicas", "Zona": null, "Vr 2024-2027": 4459848134, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-AEPSAL-001-2024...", "No. Contrato": "3306-2024", "Año": 2024.0, "Nombre corto": "Con Corpocero - Mantenimiento de Zonas Verdes", "Tpg": "Conv.", "Objeto": "2024K-22 AUNAR ESFUERZOS PARA PROPENDER POR UN ESPACIO PÚBLICO AMABLE Y CONFORTABLE PARA LA COMUNIDAD A TRAVÉS DE ACTIVIDADES DE MANTENIMIENTO INTEGRAL DE ZONAS VERDES, PLANTACION DE ESPECIES FORESTALES NATIVAS, SIEMBRA DE PLANTAS ORNAMENTALES Y DESARROLLO DEL PROGRAMA DE EDUCACIÓN AMBIENTAL DENTRO DEL PROGRAMA SILVICULTURA URBANA DEL MUNICIPIO DE SAN JOSÉ DE CÚCUTA", "Estado": "Recibido", "F. Inicio": "2024-09-12", "F. Terminación": "2025-02-15", "Vr Total": 2457968716.0, "Restante": 0, "Reinicio": "N/A", "Contratista": "CORPOCERO", "NIT Contratista": "800104609-4", "R/L": "FRANKLIN TOLOZA YAÑEZ", "NIT R/L": 88271492.0, "Entidad": "Corpocero", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "EDWIN JHOVANNY CARDONA ESCOBAR", "Apoyo": "N/A", "Fecha R.F": "2025-05-15", "Fecha Liquidación": null, "Vr. Pagado": 2457968716, "Pagado (%)": 1, "% Avance": 1.0, "BPIN": 2020540010030.0, "Programa": "Zonas Verdes", "Zona": "Urbana", "Vr 2024-2027": 2457968716, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-MC-003-2024", "No. Contrato": "4337-2024", "Año": 2024.0, "Nombre corto": "Pozo profundo La Floresta Corregimiento Buena Esperanza", "Tpg": "Obra", "Objeto": "2024K-76 OPTIMIZACION Y MEJORAMIENTO DEL SISTEMA DE CAPTACIÓN DE AGUA SUBTERRANEA POZO PROFUNDO DEL CENTRO POBLADO LA FLORESTA CORREGIMIENTO BUENA ESPERANZA, MUNICIPIO DE SAN JOSE DE CUCUTA.", "Estado": "Recibido", "F. Inicio": "2024-11-05", "F. Terminación": "2024-12-14", "Vr Total": 61635663, "Restante": 0, "Reinicio": "N/A", "Contratista": "CONSTRUCCIONES CONSULTORIA E INTERVENTORIA GUEMON SAS", "NIT Contratista": "901352561-9", "R/L": "Jairo Enrique Monsalve Mogrovejo", "NIT R/L": 13391529.0, "Entidad": "ALCALDIA MSJC", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "NO DEFINIDO", "Apoyo": "No tiene", "Fecha R.F": "2025-01-10", "Fecha Liquidación": null, "Vr. Pagado": 61635663, "Pagado (%)": 1, "% Avance": 1.0, "BPIN": 2020540010035.0, "Programa": "APSB", "Zona": "Rural", "Vr 2024-2027": 61635663, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "Decreto", "No. Contrato": "436-2024", "Año": 2024.0, "Nombre corto": "Con FOMCOLOMBIA: POLIGONO COMUNAS 1 Y 2", "Tpg": "Dect.", "Objeto": "\"POR MEDIO DEL CUAL SE VIABILIZA, PRIORIZA, APRUEBA, Y SE DESIGNA UN EJECUTOR PARA EL PROYECTO DE INVERSIÓN DENOMINADO \"MEJORAMIENTO DE LA INFRAESTRUCTURA VIAL DEL POLÍGONO QUE COMPONEN LA ZONA CÉNTRICA DEL ÁREA URBANA DEL MUNICIPIO DE SAN JOSÉ DE CÚCUTA\", IDENTIFICADO CON CÓDIGO BPIN No 2024540010141-SGR, FINANCIADO CON RECURSOS PROVENIENTES DEL SISTEMA GENERAL DE REGALÍAS (SGR), EN EL MARCO DE LA LEY 2056 DE 2020 Y EL DECRETO REGLAMENTARIO 1821 DE 2020\".", "Estado": "Recibido", "F. Inicio": "2024-11-11", "F. Terminación": null, "Vr Total": 31000000000.0, "Restante": 0, "Reinicio": "N/A", "Contratista": "FONDO DE INVERSION MIXTO - FOMCOLOMBIA", "NIT Contratista": null, "R/L": null, "NIT R/L": null, "Entidad": "FOMCOLOMBIA", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "GERMAN ALEXANDER CHAVEZ", "Apoyo": "Obed Navarro - Oscar Rojas", "Fecha R.F": null, "Fecha Liquidación": null, "Vr. Pagado": 31000000000.0, "Pagado (%)": 1, "% Avance": 0.83, "BPIN": "2024540010141\n2024540010141SGR", "Programa": "Vía", "Zona": "Urbana", "Vr 2024-2027": 31000000000, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "Decreto", "No. Contrato": "502-2024", "Año": 2024.0, "Nombre corto": "Con FOMCOLOMBIA: POLIGONO COMUNAS 3 Y 4", "Tpg": "Dect.", "Objeto": "\"POR MEDIO DEL CUAL SE VIABILIZA, PRIORIZA, APRUEBA, Y SE DESIGNA UN EJECUTOR PARA EL PROYECTO DE INVERSION DENOMINADO \"MEJORAMIENTO DE LA INFRAESTRUCTURA VIAL DE LA COMUNA 3 Y 4 DEL ÁREA URBANA DEL MUNICIPIO DE SAN JOSÉ DE CÚCUTA\", IDENTIFICADO CON CÓDIGO BPIN No 2024540010279 SGR, FINANCIADO CON RECURSOS PROVENIENTES DEL SISTEMA GENERAL DE REGALÍAS (SGR), EN EL MARCO DE LA LEY 2056 DE 2020 Y EL DECRETO REGLAMENTARIO 1821 DE 2020\".", "Estado": "Recibido", "F. Inicio": "2024-11-27", "F. Terminación": null, "Vr Total": 22000000000.0, "Restante": 0, "Reinicio": "N/A", "Contratista": "FONDO DE INVERSION MIXTO - FOMCOLOMBIA", "NIT Contratista": null, "R/L": null, "NIT R/L": null, "Entidad": "FOMCOLOMBIA", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "GERMAN ALEXANDER CHAVEZ", "Apoyo": "Obed Navarro - Oscar Rojas", "Fecha R.F": null, "Fecha Liquidación": null, "Vr. Pagado": 22000000000.0, "Pagado (%)": 1, "% Avance": 0.65, "BPIN": "2024540010005\n2024540010279 SGR", "Programa": "Vía", "Zona": "Urbana", "Vr 2024-2027": 22000000000, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-CI-003-2024", "No. Contrato": "5067-2024", "Año": 2024.0, "Nombre corto": "Con EIS - Sistemas de alcantarillado sanitario y pluvial urbano y rural", "Tpg": "Conv.", "Objeto": "AUNAR ESFUERZOS TÉCNICOS, ADMINISTRATIVOS, FINANCIERO Y JURÍDICOS PARA LA EJECUCIÓN DE PROYECTOS DE ESTUDIOS, DISEÑOS, CONTRUCCIÓN, OPTIMIZACIÓN, MEJORAMIENTO DE LOS SISTEMAS DE ALCANTARILLADO SANITARIO Y PLUVIAL EN EL ÁREA URBANA Y RURAL DEL MUNICIPIO DE SAN JOSÉ DE CÚCUTA", "Estado": "En ejecución", "F. Inicio": "2024-12-18", "F. Terminación": "2025-12-31", "Vr Total": 4330909677, "Restante": 0, "Reinicio": "N/A", "Contratista": "EIS CUCUTA SA ESP", "NIT Contratista": "890500529-9", "R/L": "Diego Fernando Mora Arango", "NIT R/L": 10289185.0, "Entidad": "EIS", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "NO DEFINIDO", "Apoyo": "Pendiente", "Fecha R.F": null, "Fecha Liquidación": null, "Vr. Pagado": 4330909677, "Pagado (%)": 1, "% Avance": null, "BPIN": "2020540010035 \n2020540010041", "Programa": "APSB", "Zona": "Urbana, Rural", "Vr 2024-2027": 4330909677, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-CI-004-2024", "No. Contrato": "5323-2024", "Año": 2024.0, "Nombre corto": "Con EIS - Optimización y mejoramiento del sistema de acueducto y alcantarillado pluvial en el área urbana y rural", "Tpg": "Conv.", "Objeto": "AUNAR ESFUERZOS TECNICOS, ADMINISTRATIVOS, FINANCIEROS Y JURÍDICOS PARA LA EJECUCIÓN, CONSTRUCCIÓN, OPTIMIZACION Y MEJORAMIENTO DEL SISTEMA DE ACUEDUCTO Y ALCANTARILLADO PLUVIAL EN EL ÁREA URBANA Y RURAL DEL MUNICPIO DE SAN JOSE DE CUCUTA", "Estado": "En ejecución", "F. Inicio": "2024-12-20", "F. Terminación": "2026-12-31", "Vr Total": 11755104170, "Restante": 121, "Reinicio": "N/A", "Contratista": "EIS CUCUTA SA ESP", "NIT Contratista": "890500529-9", "R/L": "Diego Fernando Mora Arango", "NIT R/L": 10289185.0, "Entidad": "EIS", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "NO DEFINIDO", "Apoyo": "Pendiente", "Fecha R.F": null, "Fecha Liquidación": null, "Vr. Pagado": 11755104170, "Pagado (%)": 1, "% Avance": null, "BPIN": "2020540010035 \n2020540010041", "Programa": "APSB", "Zona": "Urbana, Rural", "Vr 2024-2027": 11755104170, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-MC-005-2024", "No. Contrato": "5350-2024", "Año": 2024.0, "Nombre corto": "CONSULTORÍA MORELLI", "Tpg": "Cons.", "Objeto": "2024K-112 CONSULTORIA PARA LA REALIZACION DE LOS ESTUDIOS Y DISEÑOS REQUERIDOS PARA LA PAVIMENTACION DE LA VIA URBANA QUE CRUZA EN BARRIO MORELLI, DESDE LA AVENIDA 18 CON CALLE 29 DEL BARRIOAGUAS CALIENTES HASTA LA CALLE 32 ENTRE AV 18 Y AV 14 ENTRE CALLE 32 Y AUTOPISTA INTERNACIONAL SAN ANTONIO, DEL MUNICIPIO DE SAN JOSÉ DE CÚCUTA, NORTE DE SANTANDER", "Estado": "Recibido", "F. Inicio": "2025-03-20", "F. Terminación": "2025-09-01", "Vr Total": 104911000.0, "Restante": 0, "Reinicio": "N/A", "Contratista": "MAPG INGENIERIA CIVIL SAS", "NIT Contratista": null, "R/L": null, "NIT R/L": null, "Entidad": "ALCALDIA MSJC", "Plazo Liq. bilateral": "4 meses", "Fecha Liq. unilateral": "2026-01-01", "Plazo caducidad": "2 años", "Plazo total": null, "Fecha máx. Liq.": "2027-09-01", "Supervisor": "RICARDO RAMIREZ SERPA", "Apoyo": "Gerson", "Fecha R.F": null, "Fecha Liquidación": null, "Vr. Pagado": 0.0, "Pagado (%)": 0, "% Avance": 1.0, "BPIN": 2024540010041.0, "Programa": "Vía", "Zona": "Urbana", "Vr 2024-2027": 104911000, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-MC-004-2024", "No. Contrato": "5358-2024", "Año": 2024.0, "Nombre corto": "CONSULTORÍA PLACAHUELLA RURAL", "Tpg": "Cons.", "Objeto": "2024k-111 ESTUDIOS Y DISEÑOS PARA LA CONSTRUCCION DE LAS PLACA HUELLAS EN LA VIA TERCIARIA QUE COMUNICA EL CORREGIMIENTO DE SAN FAUSTINO CON GUARAMITO Y LA VIA TERCIARIA QUE COMUNICA LA VEREDA LA CHINA CON EL CORREGIMIENTO DE AGUA CLARA DEL MUNICIPIO DE SAN JOSÉ DE CUCUTA, NORTE DE SANTANDER .", "Estado": "Recibido", "F. Inicio": "2025-03-18", "F. Terminación": "2025-05-17", "Vr Total": 63000001.0, "Restante": 0, "Reinicio": "N/A", "Contratista": "MAPG INGENIERIA CIVIL SAS", "NIT Contratista": null, "R/L": null, "NIT R/L": null, "Entidad": "ALCALDIA MSJC", "Plazo Liq. bilateral": "4 meses", "Fecha Liq. unilateral": "2025-09-17", "Plazo caducidad": "2 años", "Plazo total": null, "Fecha máx. Liq.": "2027-05-17", "Supervisor": "RICARDO RAMIREZ SERPA", "Apoyo": "Gerson", "Fecha R.F": null, "Fecha Liquidación": null, "Vr. Pagado": 0.0, "Pagado (%)": 0, "% Avance": 1.0, "BPIN": 2024540010043.0, "Programa": "Vía", "Zona": "Rural", "Vr 2024-2027": 63000001, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-MC-006-2024", "No. Contrato": "5363-2024", "Año": 2024.0, "Nombre corto": "ASFALTO NATURAL", "Tpg": "Obra", "Objeto": "\"2024K-113 MANTENIMIENTO Y/O MEJORAMIENTO CON ASFALTO NATURAL DE LA VIA UBICADA EN LA CALLE 3 ENTRE AVENIDAS 17 Y 17B DEL BARRIO ANIVERSARIO II Y TORCORMA III DE LA COMUNA 4, MUNICIPIO DE SAN JOSE DE CUCUTA\"", "Estado": "Terminado", "F. Inicio": "2025-01-23", "F. Terminación": "2025-03-26", "Vr Total": 195777071.0, "Restante": 0, "Reinicio": "N/A", "Contratista": "Colombiana de Asfaltos SA", "NIT Contratista": null, "R/L": null, "NIT R/L": null, "Entidad": "ALCALDIA MSJC", "Plazo Liq. bilateral": "4 meses", "Fecha Liq. unilateral": "2025-07-26", "Plazo caducidad": "2 años", "Plazo total": null, "Fecha máx. Liq.": "2027-03-26", "Supervisor": "RICARDO RAMIREZ SERPA", "Apoyo": "Maria Fernanda Villamil", "Fecha R.F": null, "Fecha Liquidación": null, "Vr. Pagado": 0.0, "Pagado (%)": 0, "% Avance": null, "BPIN": 2024540010141.0, "Programa": "Vía", "Zona": "Urbana", "Vr 2024-2027": 195777071, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "Sin datos", "No. Contrato": "984-2024", "Año": 2024.0, "Nombre corto": "Con MinVivienda - EIS - Agua al Barrio", "Tpg": "Conv.", "Objeto": "“ESTUDIOS Y DISEÑOS PARA EL SUMINISTRO DE AGUA POTABLE EN ASENTAMIENTOS URBANOS (PROGRAMA AGUA AL BARRIO) EN EL MUNICIPIO DE SAN JOSÉ DE CÚCUTA, NORTE DE SANTANDER”,", "Estado": null, "F. Inicio": null, "F. Terminación": null, "Vr Total": 0.0, "Restante": null, "Reinicio": "N/A", "Contratista": "EIS CUCUTA SA ESP - MinVivienda", "NIT Contratista": null, "R/L": null, "NIT R/L": null, "Entidad": "EIS - MinVivienda", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "NO DEFINIDO", "Apoyo": "Pendiente", "Fecha R.F": null, "Fecha Liquidación": null, "Vr. Pagado": null, "Pagado (%)": 0, "% Avance": null, "BPIN": null, "Programa": "APSB", "Zona": "Urbana", "Vr 2024-2027": 0.0, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-LP-001-2024", "No. Contrato": "2382-2025", "Año": 2025.0, "Nombre corto": "PRESUPUESTO PARTICIPATIVO COMUNAS 2, 3 y Rural Obra", "Tpg": "Obra", "Objeto": "2024K-68 CONSTRUCCION, MANTENIMIENTO Y/O MEJORAMIENTO DE LAS VIAS URBANAS DE LAS COMUNAS 2 Y 3, Y DE LAS VIAS RURALES DE LOS CORREGIMIENTOS DE PUERTO VILLAMIZAR Y BUENA ESPERANZA, MUNICIPIO DE SAN JOSE DE CUCUTA (PRESUPUESTO PARTICIPATIVO)", "Estado": "Liquidado", "F. Inicio": "2025-05-27", "F. Terminación": "2025-10-02", "Vr Total": 1981000000.0, "Restante": 0, "Reinicio": "N/A", "Contratista": "UNION TEMPORAL JM VIAL", "NIT Contratista": "901933653-1", "R/L": "WILLIAM GALÁN ROMERO", "NIT R/L": 1090391911.0, "Entidad": "ALCALDIA MSJC", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "RICARDO RAMIREZ SERPA", "Apoyo": "Carlos Mario Angulo", "Fecha R.F": null, "Fecha Liquidación": null, "Vr. Pagado": 781000000, "Pagado (%)": 0.3942453306, "% Avance": 0.65, "BPIN": "2024540010043\n2024540010057\n2024540010056", "Programa": "Vía", "Zona": "Urbana, Rural", "Vr 2024-2027": 1981000000, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-CMA-001-2025", "No. Contrato": "2657-2025", "Año": 2025.0, "Nombre corto": "PRESUPUESTO PARTICIPATIVO COMUNAS 2, 3 y Rural Intv", "Tpg": "Intv.", "Objeto": "2025K-58 INTERVENTORIA, TECNICA, ADMINISTRATIVA, JURIDICA, FINANCIERA, SOCIAL, AMBIENTAL Y DE SEGURIDAD Y SALUD EN EL TRABAJO AL CONTRATO CUYO OBJETO ES: CONSTRUCCION, MANTENIMIENTO Y/O MEJORAMIENTO DE LAS VIAS URBANAS DE LAS COMUNAS 2 Y 3, Y DE LAS VIAS RURALES DE LOS CORREGIMIENTOS DE PUERTO VILLAMIZAR Y BUENA ESPERANZA, MUNICIPIO DE SAN JOSE DE CUCUTA (PRESUPUESTO PARTICIPATIVO)", "Estado": "Liquidado", "F. Inicio": "2025-05-27", "F. Terminación": "2025-10-02", "Vr Total": 172609500.0, "Restante": 0, "Reinicio": "N/A", "Contratista": "CONSORCIO INTERVENTORÍA D VÍAS 2025", "NIT Contratista": null, "R/L": null, "NIT R/L": null, "Entidad": "ALCALDIA MSJC", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "RICARDO RAMIREZ SERPA", "Apoyo": "Carlos Mario Angulo", "Fecha R.F": null, "Fecha Liquidación": null, "Vr. Pagado": 0.0, "Pagado (%)": 0, "% Avance": 0.65, "BPIN": 2024540010041.0, "Programa": "Vía", "Zona": "Urbana, Rural", "Vr 2024-2027": 172609500, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-CI-003-2025", "No. Contrato": "3290-2025", "Año": 2025.0, "Nombre corto": "Con E - Desarrollo - Intervención vial", "Tpg": "Conv.", "Objeto": "2025K74 AUNAR ESFUERZOS TECNICOS ADMINISTRATIVOS OPERATIVOS Y FINANCIEROS ENTRE EL MUNICIPIO DE SAN JOSE DE CUCUTA Y LA EMPRESA NACIONAL ESTATAL DE DESARROLLO TERRITORIAL SAS EDESARROLLO SAS CON EL PROPOSITO DE REALIZAR LA ARTICULACION INTEGRAL DEL PROYECTO BPIN 2024540010005 A TRAVES DE LA COLABORACION COORDINACION Y COOPERACION DE ACCIONES CONJUNTAS EN CUMPLIMIENTO DEL PLAN DE DESARROLLO MUNICIPAL CUCUTA PERSEVERANTE SEGURA Y PRODUCTIVA 2024 2027.", "Estado": "En ejecución", "F. Inicio": "2025-08-05", "F. Terminación": "2026-11-04", "Vr Total": 93090000000, "Restante": 64, "Reinicio": "N/A", "Contratista": "E-DESARROLLO SAS", "NIT Contratista": "901902466-8", "R/L": "ALIRIO ENRIQUE SOTOMONTE MOTTA", "NIT R/L": 13872870.0, "Entidad": "E-DESARROLLO", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "RICARDO RAMIREZ SERPA", "Apoyo": "Maria Fernanda Villamil - \nAlexandra Lucia", "Fecha R.F": null, "Fecha Liquidación": null, "Vr. Pagado": 62060000000, "Pagado (%)": 0.6666666667, "% Avance": 0.0, "BPIN": 2024540010005.0, "Programa": "Vía", "Zona": "Urbana", "Vr 2024-2027": 93090000000, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-AEPSAL-002-2025", "No. Contrato": "4699-2025", "Año": 2025.0, "Nombre corto": "con Corpocero - Placemaking", "Tpg": "Conv.", "Objeto": "2025K-113 ARTICULAR ESFUERZOS TÉCNICOS, ADMINISTRATIVOS Y FINANCIEROS PARA LA PROMOCIÓN, PLANIFICACIÓN, GESTIÓN, CONTROL E INTERVENCIÓN DEL ESPACIO PÚBLICO EN CÚCUTA, MEDIANTE LA IMPLEMENTACIÓN DE ESTRATEGIAS DE PLANIFICACIÓN URBANA COMO EL PLACEMAKING, CON EL PROPÓSITO DE FOMENTAR LA INTERACCIÓN SOCIAL, EL BIENESTAR COMÚN Y EL SENTIDO DE PERTENENCIA CIUDADANA", "Estado": "Terminado", "F. Inicio": "2025-10-01", "F. Terminación": "2026-04-25", "Vr Total": 2681296569.63, "Restante": 0, "Reinicio": "N/A", "Contratista": "CORPOCERO", "NIT Contratista": 800104609.0, "R/L": "FRANKLIN TOLOZA YAÑEZ", "NIT R/L": 88271492.0, "Entidad": "Corpocero", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "RICARDO RAMIREZ SERPA", "Apoyo": "Maria Fernanda Villamil - \nAlexandra Lucia", "Fecha R.F": null, "Fecha Liquidación": null, "Vr. Pagado": 1773166681, "Pagado (%)": 0.6613094208, "% Avance": 0.6, "BPIN": 202500000022802.0, "Programa": "Equipamiento", "Zona": "Urbana", "Vr 2024-2027": 2681296570, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-AEPSAL-001-2024...", "No. Contrato": "5037-2025", "Año": 2025.0, "Nombre corto": "con E-Desarrollo - Silla coja", "Tpg": "Conv.", "Objeto": "2025K-112 AUNAR ESFUERZOS TECNICOS, ADMINISTRATIVOS, OPERATIVOS Y FINANCIEROS ENTRE EL MUNICIPIO DE SAN JOSÉ DE CÚCUTA Y LA EMPRESA NACIONAL ESTATAL DE DESARROLLO TERRITORIAL S.A.S. E DESARROLLO SAS, CON EL PROPÓSITO DE ARTICULAR INTEGRALMENTE EL PROYECTO BPIN 2024540010005, QUE CONTEMPLA LOS ESTUDIOS, DISEÑOS DE PREINVERSIÓN Y LA CONSTRUCCIÓN DE LA INTERSECCIÓN VIAL GLORIETA SILLA COJA, MEDIANTE LA COLABORACIÓN, COORDINACIÓN Y COOPERACIÓN DE ACCIONES CONJUNTAS, EN CUMPLIMIENTO DEL PLAN DE DESAR", "Estado": "En ejecución", "F. Inicio": "2025-11-14", "F. Terminación": "2027-12-15", "Vr Total": 46372276409.41, "Restante": 470, "Reinicio": "N/A", "Contratista": "E-DESARROLLO SAS", "NIT Contratista": 901902466.0, "R/L": null, "NIT R/L": null, "Entidad": "E-DESARROLLO", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "RICARDO RAMIREZ SERPA", "Apoyo": "Ricardo Ramirez", "Fecha R.F": null, "Fecha Liquidación": null, "Vr. Pagado": 0.0, "Pagado (%)": 0, "% Avance": 0.0, "BPIN": 2024540010005.0, "Programa": "Vía", "Zona": "Urbana", "Vr 2024-2027": 45500000000, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-MC-005-2025", "No. Contrato": "5645-2025", "Año": 2025.0, "Nombre corto": "La Floresta Consultoria", "Tpg": "Cons.", "Objeto": "ESTUDIOS Y DISEÑOS PARA LA PAVIMENTACIÓN DE LA VÍA TERCIARIA ENTRE LOS CENTROS POBLADOS LA FLORESTA BUENA ESPERANZA (MATECAÑA) CORREGIMIENTO BUENA ESPERANZA MUNICIPIO DE CUCUTA NORTE DE SANTANDER", "Estado": "Terminado", "F. Inicio": "2025-10-11", "F. Terminación": "2025-12-31", "Vr Total": 133504150.19, "Restante": 0, "Reinicio": "N/A", "Contratista": "José Mauricio Santiago Rosas", "NIT Contratista": null, "R/L": null, "NIT R/L": null, "Entidad": "ALCALDIA MSJC", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "GERMAN ALEXANDER CHAVEZ", "Apoyo": null, "Fecha R.F": null, "Fecha Liquidación": null, "Vr. Pagado": null, "Pagado (%)": 0, "% Avance": null, "BPIN": 2024540010043.0, "Programa": "Vía", "Zona": "Rural", "Vr 2024-2027": 133504150.2, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-CI-004-2025", "No. Contrato": "5680-2025", "Año": 2025.0, "Nombre corto": "con E-Desarrollo -Acueductos", "Tpg": "Conv.", "Objeto": "2025K-177 AUNAR ESFUERZOS TECNICOS, ADMINISTRATIVOS, OPERATIVOS Y FINANCIEROS ENTRE EL MUNICIPIO DE SAN JOSÉ DE CÚCUTA Y LA EMPRESA NACIONAL ESTATAL DE DESARROLLO TERRITORIAL SAS E DESARROLLO SAS, CON EL PROPÓSITO DE ARTICULAR INTEGRALMENTE EL PROYECTO BPIN 2024540010119, QUE CONTEMPLA LOS ESTUDIOS, DISEÑOS DE PREINVERSIÓN Y CONSTRUCCIÓN , OPTIMIZACIÓN, MEJORAMIENTO Y/O MANTENIMIENTO DE LOS SISTEMAS DE ACUEDUCTO PARA EL ÁREA URBANA Y ÁREA RURAL DEL MUNICIPIO DE SAN JOSÉ DE CÚCUTA, MEDIANTE LA", "Estado": "En ejecución", "F. Inicio": "2025-10-12", "F. Terminación": "2026-10-09", "Vr Total": 7472506974.8, "Restante": 38, "Reinicio": "N/A", "Contratista": "E-DESARROLLO SAS", "NIT Contratista": "901902466-8", "R/L": "ALIRIO ENRIQUE SOTOMONTE MOTTA", "NIT R/L": 13872870.0, "Entidad": "E-DESARROLLO", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "RICARDO RAMIREZ SERPA", "Apoyo": "Ricardo Ramirez", "Fecha R.F": null, "Fecha Liquidación": null, "Vr. Pagado": null, "Pagado (%)": 0, "% Avance": null, "BPIN": 2024540010119.0, "Programa": "APSB", "Zona": "Rural", "Vr 2024-2027": 7472506975, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-CI-001-2025", "No. Contrato": "644-2025", "Año": 2025.0, "Nombre corto": "Con INVIAS y Gober: INTERCAMBIADOR PINAR DEL RIO", "Tpg": "Conv.", "Objeto": "2025K-13 AUNAR ESFUERZOS Y RECURSOS PARA GARANTIZAR EL APOYO FINANCIERO PARA LA CONSTRUCCIÓN DEL INTERCAMBIADOR VIAL (GLORIETA PINAR DEL RIO) de acuerdo al codigo BPIN 2024540010005 del municipio de San José de Cúcuta, y al código BPIN 20240045400039 del Departamento de Norte de Santander", "Estado": "En ejecución", "F. Inicio": "2025-02-12", "F. Terminación": "2027-02-11", "Vr Total": 31000000000.0, "Restante": 163, "Reinicio": "N/A", "Contratista": "Gobernación Norte de Santander*", "NIT Contratista": 800153197.0, "R/L": null, "NIT R/L": null, "Entidad": "GOBERNACION - INVIAS", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "RICARDO RAMIREZ SERPA", "Apoyo": "Luis Dias - Carlos Caceres", "Fecha R.F": null, "Fecha Liquidación": null, "Vr. Pagado": 31000000000.0, "Pagado (%)": 1, "% Avance": 0.0, "BPIN": "2024540010005\n20240045400039", "Programa": "Vía", "Zona": "Urbana", "Vr 2024-2027": 31000000000, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-SAM-004-2025", "No. Contrato": "6451-2025", "Año": 2025.0, "Nombre corto": "El Pórtico - San Pedro Puntos Críticos", "Tpg": "Obra", "Objeto": "\"2025K-76 MANTENIMIENTO Y ATENCION DE PUNTOS CRITICOS DE LAS VIAS DE LOS CORREGIMIENTOS DE SAN PEDRO Y BUENA ESPERANZA EN LA ZONA RURAL DEL MUNICIPIO DE SAN JOSE DE CUCUTA", "Estado": "Recibido", "F. Inicio": "2025-12-04", "F. Terminación": "2026-01-25", "Vr Total": 186294300.0, "Restante": 0, "Reinicio": "N/A", "Contratista": "GRUPO DE CONSTRUCCION CIVIL", "NIT Contratista": null, "R/L": null, "NIT R/L": null, "Entidad": "ALCALDIA MSJC", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "RICARDO RAMIREZ SERPA", "Apoyo": "Maria Fernanda Villamil - \nEdgar Villamizar", "Fecha R.F": null, "Fecha Liquidación": null, "Vr. Pagado": null, "Pagado (%)": 0, "% Avance": null, "BPIN": 2024540010043.0, "Programa": "Vía", "Zona": "Rural", "Vr 2024-2027": 186294300, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-UM-001-2025", "No. Contrato": "6456-2025", "Año": 2025.0, "Nombre corto": "UM Gaitan", "Tpg": "Obra", "Objeto": "2025K-207 EJECUTAR, EN EL MARCO DE LA URGENCIA MANIFIESTA DECLARADA MEDIANTE DECRETO 500 DEL 28 DE NOVIEMBRE DE 2025, LAS OBRAS URGENTES DE RECUPERACIÓN DEL SISTEMA DE DRENAJE PLUVIAL COLAPSADO EN EL BARRIO GAITÁN, INTERVINIENDO EL TRAMO AFECTADO Y ESTABILIZANDO EL TERRENO PARA MITIGAR EL RIESGO Y RESTABLECER LA CONTINUIDAD DEL SERVICIO.", "Estado": "Recibido", "F. Inicio": "2025-12-24", "F. Terminación": "2026-03-16", "Vr Total": 441985143.11, "Restante": 0, "Reinicio": "N/A", "Contratista": "SABA INGENIERIA Y CONSTRUCCIONES SAS", "NIT Contratista": 900354198.0, "R/L": null, "NIT R/L": null, "Entidad": "ALCALDIA MSJC", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "GERMAN ALEXANDER CHAVEZ", "Apoyo": "Carlos Maldonado", "Fecha R.F": null, "Fecha Liquidación": null, "Vr. Pagado": null, "Pagado (%)": 0, "% Avance": 0.9, "BPIN": 2024540010118.0, "Programa": "Vía", "Zona": "Urbana", "Vr 2024-2027": 441985143.1, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-UM-002-2025", "No. Contrato": "6480-2025", "Año": 2025.0, "Nombre corto": "UM Santander", "Tpg": "Obra", "Objeto": "2025K-208 REALIZAR, CONFORME AL DECRETO 500 DEL 28 DE NOVIEMBRE DE 2025, LAS OBRAS URGENTES PARA LA RECUPERACIÓN DEL SISTEMA DE DRENAJE PLUVIAL DEL BARRIO SANTANDER, INTERVINIENDO EL CRÁTER GENERADO, ESTABILIZANDO EL TERRENO Y REPONIENDO LA INFRAESTRUCTURA AFECTADA, CON EL FIN DE MITIGAR EL RIESGO Y RESTABLECER LA SEGURIDAD Y MOVILIDAD DEL SECTOR.", "Estado": "Recibido", "F. Inicio": "2025-12-24", "F. Terminación": "2026-03-06", "Vr Total": 720864340, "Restante": 0, "Reinicio": "N/A", "Contratista": "VILLACE PROYECTOS SAS", "NIT Contratista": 901798733.0, "R/L": null, "NIT R/L": null, "Entidad": "ALCALDIA MSJC", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "GERMAN ALEXANDER CHAVEZ", "Apoyo": "Carlos Maldonado", "Fecha R.F": null, "Fecha Liquidación": null, "Vr. Pagado": null, "Pagado (%)": 0, "% Avance": 0.9, "BPIN": 2024540010118.0, "Programa": "Vía", "Zona": "Urbana", "Vr 2024-2027": 720864340, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-SAM-002-2024", "No. Contrato": "755-2025", "Año": 2025.0, "Nombre corto": "Optimización de Acueducto Urbanización Brisas del Río – Agua Clara", "Tpg": "Obra", "Objeto": "2024K-80 OBRAS DE OPTIMIZACION Y AMPLIACION DEL SISTEMA DE ACUEDUCTO PARA EL SECTOR DE URB. BRISAS DEL RIO, CENTRO POBLADO DE AGUACLARA, MUNICIPIO DE SAN JOSE DE CÚCUTA", "Estado": "Liquidado", "F. Inicio": "2025-03-03", "F. Terminación": "2025-05-02", "Vr Total": 211345029, "Restante": 0, "Reinicio": "N/A", "Contratista": "UNIÓN TEMPORAL ACUEDUCTO BRISAS", "NIT Contratista": "901904239-1", "R/L": "PAULA ANDREA ROJAS MANTILLA", "NIT R/L": 1004841672.0, "Entidad": "ALCALDIA MSJC", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "NO DEFINIDO", "Apoyo": null, "Fecha R.F": "2025-06-03", "Fecha Liquidación": null, "Vr. Pagado": 190210526.1, "Pagado (%)": 0.9, "% Avance": 1.0, "BPIN": 2023540010033.0, "Programa": "APSB", "Zona": "Rural", "Vr 2024-2027": 211345029, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-SAM-003-2024", "No. Contrato": "927-2025", "Año": 2025.0, "Nombre corto": "DEPENDENCIAS PALACIO", "Tpg": "Obra", "Objeto": "2024K-115 CONTRATO DE OBRA PARA EL MEJORAMIENTO, MANTENIMIENTO Y REPARACIONES LOCATIVAS DE LAS DIFERENTES DEPENDENCIAS PROPIEDAD DE LA ALCALDIA DE SAN JOSE DE CUCUTA", "Estado": "Liquidado", "F. Inicio": "2025-03-03", "F. Terminación": "2025-12-02", "Vr Total": 1950000000, "Restante": 0, "Reinicio": "N/A", "Contratista": "UNION TEMPORAL REMODELACIONES CUCUTA 2024", "NIT Contratista": 901903148.0, "R/L": "JOSE DANIEL ALDANA PEREZ", "NIT R/L": 13475321.0, "Entidad": "ALCALDIA MSJC", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "RICARDO RAMIREZ SERPA", "Apoyo": "Carlos Garcia", "Fecha R.F": null, "Fecha Liquidación": null, "Vr. Pagado": 886353123.0, "Pagado (%)": 0.4545400631, "% Avance": 0.4545400631, "BPIN": 2021540010297.0, "Programa": "Equipamiento", "Zona": "Urbana", "Vr 2024-2027": 1950000000, "Vr 2024": 0.0, "Vr 2025": 0.0, "KM Avanzados": null}, {"No. Proceso": "SIM-SUB-001-2025", "No. Contrato": "6478-2025", "Año": 2025.0, "Nombre corto": "Dotación Ceci", "Tpg": "Suministro", "Objeto": "2025K-165 SUMINISTRO E INSTALACIÓN DE MOBILIARIO CONFORME A LAS ESPECIFICACIONES TÉCNICAS DETALLADAS EN LA FICHA TÉCNICA, CON EL FIN DE DOTAR LAS INSTALACIONES DEL \"CORAZÓN DE BARRIO NIÑA CECI\", EN EL MARCO DEL PROYECTO DENOMINADO \"CONSTRUCCIÓN Y DOTACIÓN DEL CORAZÓN DE BARRIO NIÑA CECI EN EL MUNICIPIO DE SAN JOSÉ DE CÚCUTA, NORTE DE SANTANDER\", IDENTIFICADO CON EL CÓDIGO BPIN 2020540010262", "Estado": "Terminado", "F. Inicio": "2025-12-16", "F. Terminación": "2025-12-30", "Vr Total": 303749812.6, "Restante": 0, "Reinicio": "N/A", "Contratista": "OFFIDISEÑOS SOLUCIONES INTEGRALES SAS", "NIT Contratista": 901460800.0, "R/L": null, "NIT R/L": null, "Entidad": "ALCALDIA MSJC", "Plazo Liq. bilateral": null, "Fecha Liq. unilateral": null, "Plazo caducidad": null, "Plazo total": null, "Fecha máx. Liq.": null, "Supervisor": "GERMAN ALEXANDER CHAVEZ", "Apoyo": null, "Fecha R.F": null, "Fecha Liquidación": null, "Vr. Pagado": null, "Pagado (%)": 0, "% Avance": null, "BPIN": null, "Programa": "Equipamiento", "Zona": "Urbana", "Vr 2024-2027": null, "Vr 2024": null, "Vr 2025": null, "KM Avanzados": null}];
+</script>
+<script>
+/* ============ Helpers ============ */
+const fmtCOP = (v) => {
+  if (v === null || v === undefined || isNaN(v)) return 'N/D';
+  return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(v);
+};
+const fmtCOPShort = (v) => {
+  if (v === null || v === undefined || isNaN(v)) return 'N/D';
+  if (Math.abs(v) >= 1e9) return '$' + (v / 1e9).toFixed(1).replace('.0', '') + ' mil M';
+  if (Math.abs(v) >= 1e6) return '$' + (v / 1e6).toFixed(0) + ' M';
+  return fmtCOP(v);
+};
+const fmtPct = (v) => {
+  if (v === null || v === undefined || isNaN(v)) return 'N/D';
+  return (v * 100).toFixed(1) + '%';
+};
+const fmtDate = (s) => {
+  if (!s) return 'N/D';
+  const d = new Date(s + 'T00:00:00');
+  if (isNaN(d.getTime())) return s;
+  return d.toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' });
+};
+const val = (v, fallback = 'N/D') => (v === null || v === undefined || v === '' ? fallback : v);
+
+const STATE_CLASS = {
+  'Liquidado': 'badge-liquidado',
+  'Terminado': 'badge-terminado',
+  'Recibido': 'badge-recibido',
+  'En ejecución': 'badge-ejecucion'
+};
+
+/* ============ State ============ */
+let filtered = [...CONTRATOS_DATA];
+let sortKey = 'F. Inicio';
+let sortDir = 'desc';
+
+/* ============ Populate filter dropdowns ============ */
+function uniqueSorted(field) {
+  const set = new Set();
+  CONTRATOS_DATA.forEach(d => { if (d[field]) set.add(d[field]); });
+  return [...set].sort((a, b) => String(a).localeCompare(String(b), 'es'));
+}
+
+function populateSelect(id, values, formatter) {
+  const el = document.getElementById(id);
+  values.forEach(v => {
+    const opt = document.createElement('option');
+    opt.value = v;
+    opt.textContent = formatter ? formatter(v) : v;
+    el.appendChild(opt);
+  });
+}
+
+populateSelect('filterEstado', uniqueSorted('Estado'));
+populateSelect('filterEntidad', uniqueSorted('Entidad'));
+populateSelect('filterTpg', uniqueSorted('Tpg'));
+populateSelect('filterPrograma', uniqueSorted('Programa'));
+populateSelect('filterZona', uniqueSorted('Zona'));
+populateSelect('filterSupervisor', uniqueSorted('Supervisor'));
+
+/* ============ Año multi-select ============ */
+const anoYears = uniqueSorted('Año').map(v => Math.round(v)).sort((a, b) => b - a);
+let selectedAnos = new Set(); // vacío = todos los años
+
+function buildAnoOptions() {
+  const container = document.getElementById('anoOptions');
+  container.innerHTML = anoYears.map(y => `
+    <label class="ms-option">
+      <input type="checkbox" value="${y}">
+      <span>${y}</span>
+    </label>
+  `).join('');
+  container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', () => {
+      const y = parseInt(cb.value, 10);
+      if (cb.checked) selectedAnos.add(y); else selectedAnos.delete(y);
+      updateAnoButtonLabel();
+      applyFilters();
+    });
+  });
+}
+buildAnoOptions();
+
+function updateAnoButtonLabel() {
+  const label = document.getElementById('anoBtnLabel');
+  if (selectedAnos.size === 0) {
+    label.textContent = 'Todos los años';
+  } else {
+    const sorted = [...selectedAnos].sort((a, b) => b - a);
+    label.textContent = sorted.length <= 3 ? sorted.join(', ') : `${sorted.length} años seleccionados`;
+  }
+}
+
+const anoBtn = document.getElementById('anoBtn');
+const anoPanel = document.getElementById('anoPanel');
+anoBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  const willOpen = !anoPanel.classList.contains('open');
+  anoPanel.classList.toggle('open', willOpen);
+  anoBtn.classList.toggle('active', willOpen);
+});
+document.addEventListener('click', (e) => {
+  if (!document.getElementById('anoMultiselect').contains(e.target)) {
+    anoPanel.classList.remove('open');
+    anoBtn.classList.remove('active');
+  }
+});
+document.getElementById('anoSelectAll').addEventListener('click', () => {
+  selectedAnos = new Set(anoYears);
+  document.querySelectorAll('#anoOptions input[type="checkbox"]').forEach(cb => cb.checked = true);
+  updateAnoButtonLabel();
+  applyFilters();
+});
+document.getElementById('anoClear').addEventListener('click', () => {
+  selectedAnos = new Set();
+  document.querySelectorAll('#anoOptions input[type="checkbox"]').forEach(cb => cb.checked = false);
+  updateAnoButtonLabel();
+  applyFilters();
+});
+
+/* ============ Filtering ============ */
+function applyFilters() {
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  const estado = document.getElementById('filterEstado').value;
+  const entidad = document.getElementById('filterEntidad').value;
+  const tpg = document.getElementById('filterTpg').value;
+  const programa = document.getElementById('filterPrograma').value;
+  const zona = document.getElementById('filterZona').value;
+  const supervisor = document.getElementById('filterSupervisor').value;
+
+  filtered = CONTRATOS_DATA.filter(d => {
+    if (selectedAnos.size > 0 && !selectedAnos.has(Math.round(d['Año'] || 0))) return false;
+    if (estado && d['Estado'] !== estado) return false;
+    if (entidad && d['Entidad'] !== entidad) return false;
+    if (tpg && d['Tpg'] !== tpg) return false;
+    if (programa && d['Programa'] !== programa) return false;
+    if (zona && d['Zona'] !== zona) return false;
+    if (supervisor && d['Supervisor'] !== supervisor) return false;
+    if (q) {
+      const hay = [
+        d['No. Contrato'], d['Nombre corto'], d['Contratista'], d['Objeto'], d['No. Proceso']
+      ].filter(Boolean).join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  sortData();
+  render();
+}
+
+function resetFilters() {
+  document.getElementById('searchInput').value = '';
+  selectedAnos = new Set();
+  document.querySelectorAll('#anoOptions input[type="checkbox"]').forEach(cb => cb.checked = false);
+  updateAnoButtonLabel();
+  ['filterEstado', 'filterEntidad', 'filterTpg', 'filterPrograma', 'filterZona', 'filterSupervisor']
+    .forEach(id => document.getElementById(id).value = '');
+  applyFilters();
+}
+
+/* ============ Sorting ============ */
+function sortData() {
+  filtered.sort((a, b) => {
+    let av = a[sortKey], bv = b[sortKey];
+    if (av === null || av === undefined) av = sortDir === 'asc' ? Infinity : -Infinity;
+    if (bv === null || bv === undefined) bv = sortDir === 'asc' ? Infinity : -Infinity;
+    if (typeof av === 'string' && typeof bv === 'string') {
+      const cmp = av.localeCompare(bv, 'es');
+      return sortDir === 'asc' ? cmp : -cmp;
+    }
+    const cmp = av > bv ? 1 : av < bv ? -1 : 0;
+    return sortDir === 'asc' ? cmp : -cmp;
+  });
+}
+
+document.querySelectorAll('#dataTable thead th').forEach(th => {
+  th.addEventListener('click', () => {
+    const key = th.dataset.key;
+    if (sortKey === key) {
+      sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      sortKey = key;
+      sortDir = 'desc';
+    }
+    document.querySelectorAll('#dataTable thead th').forEach(t => t.classList.remove('sorted'));
+    th.classList.add('sorted');
+    th.querySelector('.arrow').textContent = sortDir === 'asc' ? '↑' : '↓';
+    sortData();
+    render();
+  });
+});
+
+/* ============ KPI computation ============ */
+function computeKPIs(rows) {
+  const count = rows.length;
+  const totalContratado = rows.reduce((s, d) => s + (d['Vr Total'] || 0), 0);
+  const totalPagado = rows.reduce((s, d) => s + (d['Vr. Pagado'] || 0), 0);
+  const ejecFinanciera = totalContratado > 0 ? totalPagado / totalContratado : 0;
+  const enEjecucion = rows.filter(d => d['Estado'] === 'En ejecución').length;
+  const liquidados = rows.filter(d => d['Estado'] === 'Liquidado').length;
+
+  const hoy = new Date();
+  const limite = new Date();
+  limite.setDate(hoy.getDate() + 60);
+  const porVencer = rows.filter(d => {
+    if (d['Estado'] !== 'En ejecución' || !d['F. Terminación']) return false;
+    const f = new Date(d['F. Terminación'] + 'T00:00:00');
+    return f >= hoy && f <= limite;
+  }).length;
+
+  return { count, totalContratado, totalPagado, ejecFinanciera, enEjecucion, liquidados, porVencer };
+}
+
+function renderKPIs() {
+  const k = computeKPIs(filtered);
+  const cards = [
+    { label: 'Contratos filtrados', value: k.count, color: 'var(--navy-800)', foot: `de ${CONTRATOS_DATA.length} en total` },
+    { label: 'Valor contratado', value: fmtCOPShort(k.totalContratado), color: 'var(--amber)', foot: fmtCOP(k.totalContratado), small: true },
+    { label: 'Valor pagado', value: fmtCOPShort(k.totalPagado), color: 'var(--teal)', foot: fmtCOP(k.totalPagado), small: true },
+    { label: 'Ejecución financiera', value: fmtPct(k.ejecFinanciera), color: 'var(--green)', foot: 'pagado / contratado' },
+    { label: 'En ejecución', value: k.enEjecucion, color: 'var(--blue)', foot: `${k.liquidados} liquidados` },
+    { label: 'Por vencer (60 días)', value: k.porVencer, color: 'var(--red)', foot: 'en ejecución, vencen pronto' }
+  ];
+  const grid = document.getElementById('kpiGrid');
+  grid.innerHTML = cards.map(c => `
+    <div class="kpi-card">
+      <div class="bar" style="background:${c.color}"></div>
+      <div class="label">${c.label}</div>
+      <div class="value ${c.small ? 'small' : ''}">${c.value}</div>
+      <div class="foot">${c.foot}</div>
+    </div>
+  `).join('');
+}
+
+/* ============ Charts (SVG puro, sin dependencias externas) ============ */
+function groupSum(rows, keyField, valField) {
+  const map = {};
+  rows.forEach(d => {
+    const k = d[keyField] || 'N/D';
+    map[k] = (map[k] || 0) + (d[valField] || 0);
+  });
+  return map;
+}
+function groupCount(rows, keyField) {
+  const map = {};
+  rows.forEach(d => {
+    const k = d[keyField] || 'N/D';
+    map[k] = (map[k] || 0) + 1;
+  });
+  return map;
+}
+
+const ESTADO_COLOR = { 'Liquidado': '#2f5f8a', 'Terminado': '#6c7580', 'Recibido': '#c9821a', 'En ejecución': '#2f7d5a' };
+const PALETTE = ['#1f6f6f', '#c9821a', '#2f5f8a', '#2f7d5a', '#a8402f', '#254f68', '#6c7580', '#e0a94a'];
+const svgNS = 'http://www.w3.org/2000/svg';
+
+function clearNode(node) { while (node.firstChild) node.removeChild(node.firstChild); }
+
+/* --- Donut chart: contratos por estado --- */
+function renderDonut(containerId, dataMap, colorFn) {
+  const container = document.getElementById(containerId);
+  clearNode(container);
+  const labels = Object.keys(dataMap);
+  const total = labels.reduce((s, l) => s + dataMap[l], 0);
+  if (total === 0) { container.innerHTML = '<div class="chart-empty">Sin datos para los filtros actuales.</div>'; return; }
+
+  const wrap = document.createElement('div');
+  wrap.className = 'donut-wrap';
+
+  const size = 150, r = 55, cx = size / 2, cy = size / 2, circumference = 2 * Math.PI * r;
+  const svg = document.createElementNS(svgNS, 'svg');
+  svg.setAttribute('viewBox', `0 0 ${size} ${size}`);
+  svg.setAttribute('class', 'donut-svg');
+
+  let offset = 0;
+  labels.forEach((l, i) => {
+    const frac = dataMap[l] / total;
+    const dash = frac * circumference;
+    const circle = document.createElementNS(svgNS, 'circle');
+    circle.setAttribute('cx', cx); circle.setAttribute('cy', cy); circle.setAttribute('r', r);
+    circle.setAttribute('fill', 'none');
+    circle.setAttribute('stroke', colorFn(l, i));
+    circle.setAttribute('stroke-width', 22);
+    circle.setAttribute('stroke-dasharray', `${dash} ${circumference - dash}`);
+    circle.setAttribute('stroke-dashoffset', -offset);
+    circle.setAttribute('transform', `rotate(-90 ${cx} ${cy})`);
+    const title = document.createElementNS(svgNS, 'title');
+    title.textContent = `${l}: ${dataMap[l]} (${(frac * 100).toFixed(1)}%)`;
+    circle.appendChild(title);
+    svg.appendChild(circle);
+    offset += dash;
+  });
+
+  const centerText = document.createElementNS(svgNS, 'text');
+  centerText.setAttribute('x', cx); centerText.setAttribute('y', cy - 3);
+  centerText.setAttribute('text-anchor', 'middle');
+  centerText.setAttribute('class', 'donut-center-num');
+  centerText.textContent = total;
+  svg.appendChild(centerText);
+  const centerLabel = document.createElementNS(svgNS, 'text');
+  centerLabel.setAttribute('x', cx); centerLabel.setAttribute('y', cy + 14);
+  centerLabel.setAttribute('text-anchor', 'middle');
+  centerLabel.setAttribute('class', 'donut-center-label');
+  centerLabel.textContent = 'contratos';
+  svg.appendChild(centerLabel);
+
+  wrap.appendChild(svg);
+
+  const legend = document.createElement('div');
+  legend.className = 'chart-legend';
+  legend.innerHTML = labels.map((l, i) => `
+    <div class="legend-item">
+      <span class="legend-dot" style="background:${colorFn(l, i)}"></span>
+      <span class="legend-label">${l}</span>
+      <span class="legend-val">${dataMap[l]}</span>
+    </div>`).join('');
+  wrap.appendChild(legend);
+
+  container.appendChild(wrap);
+}
+
+/* --- Horizontal bar chart: valor por programa --- */
+function renderHBar(containerId, dataMap, formatter) {
+  const container = document.getElementById(containerId);
+  clearNode(container);
+  const labels = Object.keys(dataMap).sort((a, b) => dataMap[b] - dataMap[a]);
+  if (labels.length === 0 || labels.every(l => dataMap[l] === 0)) {
+    container.innerHTML = '<div class="chart-empty">Sin datos para los filtros actuales.</div>'; return;
+  }
+  const max = Math.max(...labels.map(l => dataMap[l]));
+  const wrap = document.createElement('div');
+  wrap.className = 'hbar-wrap';
+  wrap.innerHTML = labels.map((l, i) => `
+    <div class="hbar-row">
+      <span class="hbar-label" title="${l}">${l}</span>
+      <div class="hbar-track">
+        <div class="hbar-fill" style="width:${max > 0 ? (dataMap[l] / max * 100) : 0}%; background:${PALETTE[i % PALETTE.length]}"></div>
+      </div>
+      <span class="hbar-val">${formatter(dataMap[l])}</span>
+    </div>
+  `).join('');
+  container.appendChild(wrap);
+}
+
+/* --- Vertical bar chart: contratos y valor por año --- */
+function renderVBar(containerId, countMap, sumMap) {
+  const container = document.getElementById(containerId);
+  clearNode(container);
+  const labels = Object.keys(countMap).sort((a, b) => a - b);
+  if (labels.length === 0) { container.innerHTML = '<div class="chart-empty">Sin datos para los filtros actuales.</div>'; return; }
+  const max = Math.max(...labels.map(l => countMap[l]));
+  const wrap = document.createElement('div');
+  wrap.className = 'vbar-wrap';
+  wrap.innerHTML = labels.map(l => `
+    <div class="vbar-col" title="${countMap[l]} contratos · ${fmtCOPShort(sumMap[l])}">
+      <div class="vbar-track">
+        <div class="vbar-fill" style="height:${max > 0 ? (countMap[l] / max * 100) : 0}%"></div>
+      </div>
+      <span class="vbar-count">${countMap[l]}</span>
+      <span class="vbar-label">${Math.round(l)}</span>
+    </div>
+  `).join('');
+  container.appendChild(wrap);
+}
+
+function renderCharts() {
+  const estadoCounts = groupCount(filtered, 'Estado');
+  renderDonut('chartEstado', estadoCounts, (l) => ESTADO_COLOR[l] || '#a8402f');
+
+  const progSums = groupSum(filtered, 'Programa', 'Vr Total');
+  renderHBar('chartPrograma', progSums, fmtCOPShort);
+
+  const yearCounts = groupCount(filtered, 'Año');
+  const yearSums = groupSum(filtered, 'Año', 'Vr Total');
+  renderVBar('chartAno', yearCounts, yearSums);
+}
+
+/* ============ Table ============ */
+function renderTable() {
+  const tbody = document.getElementById('tableBody');
+  document.getElementById('tableCount').textContent = `${filtered.length} de ${CONTRATOS_DATA.length}`;
+  document.getElementById('filterSummary').textContent = `Mostrando ${filtered.length} de ${CONTRATOS_DATA.length} contratos`;
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="8">No hay contratos que coincidan con los filtros seleccionados.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map((d, idx) => {
+    const badgeClass = STATE_CLASS[d['Estado']] || 'badge-otro';
+    const avancePct = d['% Avance'] !== null && d['% Avance'] !== undefined ? Math.min(Math.max(d['% Avance'], 0), 1) : 0;
+    return `
+    <tr data-idx="${idx}">
+      <td class="mono">${val(d['No. Contrato'])}</td>
+      <td class="name-cell">
+        <span class="main-txt">${val(d['Nombre corto'], val(d['No. Proceso']))}</span>
+        <span class="sub-txt">${val(d['Contratista'])}</span>
+      </td>
+      <td><span class="badge ${badgeClass}">${val(d['Estado'])}</span></td>
+      <td>${fmtDate(d['F. Inicio'])}</td>
+      <td>${fmtDate(d['F. Terminación'])}</td>
+      <td class="num">${fmtCOP(d['Vr Total'])}</td>
+      <td class="num">${fmtCOP(d['Vr. Pagado'])}</td>
+      <td class="num">
+        <span class="progress-mini"><div style="width:${(avancePct * 100).toFixed(0)}%"></div></span>${fmtPct(d['% Avance'])}
+      </td>
+    </tr>`;
+  }).join('');
+
+  tbody.querySelectorAll('tr[data-idx]').forEach(tr => {
+    tr.addEventListener('click', () => openDetail(filtered[+tr.dataset.idx]));
+  });
+}
+
+/* ============ Detail modal ============ */
+function openDetail(d) {
+  document.getElementById('detailProceso').textContent = `${val(d['No. Proceso'])} · Contrato ${val(d['No. Contrato'])}`;
+  document.getElementById('detailTitulo').textContent = val(d['Nombre corto'], val(d['No. Contrato']));
+
+  const items = [
+    ['Contratista', val(d['Contratista'])],
+    ['Representante legal', val(d['R/L'])],
+    ['Entidad', val(d['Entidad'])],
+    ['Tipo (Tpg)', val(d['Tpg'])],
+    ['Programa', val(d['Programa'])],
+    ['Zona', val(d['Zona'])],
+    ['Estado', val(d['Estado'])],
+    ['Supervisor', val(d['Supervisor'])],
+    ['Apoyo', val(d['Apoyo'])],
+    ['Fecha de inicio', fmtDate(d['F. Inicio'])],
+    ['Fecha de terminación', fmtDate(d['F. Terminación'])],
+    ['Fecha de liquidación', fmtDate(d['Fecha Liquidación'])],
+    ['Valor total', fmtCOP(d['Vr Total']), true],
+    ['Valor pagado', fmtCOP(d['Vr. Pagado']), true],
+    ['% Pagado', fmtPct(d['Pagado (%)']), true],
+    ['% Avance', fmtPct(d['% Avance']), true],
+    ['BPIN', val(d['BPIN'])],
+  ];
+
+  const objeto = d['Objeto'] ? `<div class="objeto">${d['Objeto']}</div>` : '';
+
+  document.getElementById('detailBody').innerHTML = objeto + `
+    <div class="detail-grid">
+      ${items.map(([k, v, mono]) => `
+        <div class="detail-item">
+          <span class="k">${k}</span>
+          <span class="v ${mono ? 'mono' : ''}">${v}</span>
+        </div>`).join('')}
+    </div>
+  `;
+  document.getElementById('detailModal').classList.add('open');
+}
+
+/* ============ Render all ============ */
+function render() {
+  renderKPIs();
+  try {
+    renderCharts();
+  } catch (e) {
+    console.warn('No se pudieron renderizar las gráficas:', e);
+  }
+  renderTable();
+}
+
+/* ============ Events ============ */
+document.getElementById('searchInput').addEventListener('input', applyFilters);
+['filterEstado', 'filterEntidad', 'filterTpg', 'filterPrograma', 'filterZona', 'filterSupervisor']
+  .forEach(id => document.getElementById(id).addEventListener('change', applyFilters));
+document.getElementById('resetBtn').addEventListener('click', resetFilters);
+
+document.getElementById('detailClose').addEventListener('click', () => document.getElementById('detailModal').classList.remove('open'));
+document.getElementById('detailModal').addEventListener('click', (e) => { if (e.target.id === 'detailModal') e.currentTarget.classList.remove('open'); });
+
+document.getElementById('aboutBtn').addEventListener('click', () => document.getElementById('aboutModal').classList.add('open'));
+document.getElementById('aboutClose').addEventListener('click', () => document.getElementById('aboutModal').classList.remove('open'));
+document.getElementById('aboutModal').addEventListener('click', (e) => { if (e.target.id === 'aboutModal') e.currentTarget.classList.remove('open'); });
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    document.getElementById('detailModal').classList.remove('open');
+    document.getElementById('aboutModal').classList.remove('open');
+  }
+});
+
+/* ============ Init ============ */
+document.querySelector('#dataTable thead th[data-key="F. Inicio"]').classList.add('sorted');
+document.querySelector('#dataTable thead th[data-key="F. Inicio"] .arrow').textContent = '↓';
+sortData();
+render();
+
+</script>
+
+
+</body></html>
